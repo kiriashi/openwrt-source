@@ -1,0 +1,21 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+start_service() {
+    local sta_found=$(uci show wireless | grep -E "\.mode='sta'$" || echo "")
+    
+    if [ -z "$sta_found" ]; then
+        return 0
+    fi
+    
+    procd_open_instance
+    procd_set_param command /bin/sh /usr/bin/mtk_auto_relay
+    procd_set_param respawn
+    procd_close_instance
+}
+
+service_triggers() {
+    procd_add_reload_trigger "mtk_relay" "wireless"
+}

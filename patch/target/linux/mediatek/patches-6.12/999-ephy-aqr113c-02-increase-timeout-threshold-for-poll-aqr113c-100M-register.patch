@@ -1,0 +1,25 @@
+From f163d6752765187250a2f57cbf95456d2737c049 Mon Sep 17 00:00:00 2001
+From: Bo-Cun Chen <bc-bocun.chen@mediatek.com>
+Date: Fri, 3 Oct 2025 17:35:14 +0800
+Subject: [PATCH 2/2] net: phy: aquantia: increase timeout threshold for
+ aqr113c poll 100M register
+
+Without this patch, the user may observe poll timeout and attach PHY
+failure logs after the interface goes down and up on MTK RFB.
+
+Signed-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>
+---
+ drivers/net/phy/aquantia/aquantia_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/net/phy/aquantia/aquantia_main.c
++++ b/drivers/net/phy/aquantia/aquantia_main.c
+@@ -843,7 +843,7 @@ static int aqr113c_fill_interface_modes(
+ 	 */
+ 	ret = phy_read_mmd_poll_timeout(phydev, MDIO_MMD_VEND1,
+ 					VEND1_GLOBAL_CFG_100M, val, val != 0,
+-					1000, 100000, false);
++					1000, 200000, false);
+ 	if (ret)
+ 		return ret;
+ 

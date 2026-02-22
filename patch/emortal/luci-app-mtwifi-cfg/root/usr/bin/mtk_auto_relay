@@ -1,0 +1,50 @@
+#!/bin/sh
+
+is_connected() {
+    local dev="$1"
+    if iwconfig "$dev" 2>/dev/null | grep -qE "Access Point: ([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}"; then
+        return 0
+    fi
+    return 1
+}
+
+do_smart_connect() {
+    local d="$1" p="$2" s="$3"
+    iwpriv "$d" set ApCliEnable=0
+    iwpriv "$d" set ApCliAutoConnect=0
+    iwpriv "$d" set ScanStop=1 2>/dev/null
+    sleep 1
+    iwpriv "$p" set AutoChannelSel=1
+    iwpriv "$d" set ApCliSsid="$s"
+    iwpriv "$d" set ApCliAutoConnect=1
+    iwpriv "$d" set ApCliEnable=1
+}
+
+while true; do
+    idx=0
+    while :; do
+        sec="wireless.@wifi-iface[$idx]"
+        mode=$(uci -q get "$sec.mode")
+        [ -z "$mode" ] && break
+
+        if [ "$mode" = "sta" ]; then
+            device=$(uci -q get "$sec.device")
+            ssid=$(uci -q get "$sec.ssid")
+            
+            if [ "$device" = "MT7981_1_2" ]; then
+                d="apclix0"
+                p="rax0"
+            else
+                d="apcli0"
+                p="ra0"
+            fi
+
+            if ! is_connected "$d"; then
+                do_smart_connect "$d" "$p" "$ssid"
+                sleep 45
+            fi
+        fi
+        idx=$((idx+1))
+    done
+    sleep 15
+done

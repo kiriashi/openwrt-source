@@ -1,0 +1,77 @@
+name: Update OpenWrt-25.12(stable)
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+env:
+  DIY_P1_SH: sh/op.sh
+
+jobs:
+  sync:
+    runs-on: ubuntu-22.04      
+    steps: 
+    - name: 检查分支
+      uses: actions/checkout@v4
+
+    - name: 配置 Git
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
+    - name: 设置环境变量
+      run: |
+        echo "REPO_URL=https://github.com/openwrt/openwrt" >> $GITHUB_ENV
+        echo "REPO_BRANCH=openwrt-25.12" >> $GITHUB_ENV
+
+    - name: 克隆源代码
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+        git clone $REPO_URL openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        
+    - name: 切换分支
+      run: |
+        cd openwrt
+        case openwrt-25.12 in
+          openwrt-25.12)
+            _release_tag=$(git tag --sort=taggerdate --list 'v25.*' | tail -1)
+            git checkout $_release_tag
+            _prerelease=false
+            ;;
+          *)
+            echo "Can't get local/upstream's branch/tags"
+            ;;
+        esac
+        git checkout -b "$_release_tag" "$_release_tag"
+        echo "release_tag=$_release_tag" >> $GITHUB_ENV
+        
+            
+        
+    - name: 加载自定义脚本
+      run: |
+        [ -e patch ] && cp -rf patch/fullcone/firewall4 openwrt/package/network/config
+        [ -e patch ] && cp -rf patch/fullcone/libnftnl openwrt/package/libs
+        [ -e patch ] && cp -rf patch/fullcone/nftables openwrt/package/network/utils  
+        [ -e patch ] && cp -rf patch/apk-tools/*.patch openwrt/package/system/apk/patches
+        [ -e patch ] && cp -rf patch/emortal openwrt/package
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        sed -i 's#https://git\.openwrt\.org/feed#https://github.com/openwrt#g; s#https://git\.openwrt\.org/project#https://github.com/openwrt#g' feeds.conf.default
+        $GITHUB_WORKSPACE/$DIY_P1_SH
+        cd ..
+        [ -e patch ] && cp -rf patch/target openwrt
+        [ -e patch ] && cp -rf patch/fix/* openwrt/package/mtk/drivers/mt_wifi/patches-7673
+
+    - name: 推送
+      run: |
+        cd openwrt
+        rm -rf .github
+        git add -f .
+        git commit -m "MT798x mtk-wifi release: ${{ env.release_tag }} kernel 6.12"
+        git push "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:refs/heads/${{ env.release_tag }} --force
+        git tag -f ${{ env.release_tag }}
+        git push "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" refs/tags/${{ env.release_tag }}:refs/tags/${{ env.release_tag }} --force

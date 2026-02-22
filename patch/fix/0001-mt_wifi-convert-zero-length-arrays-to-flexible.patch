@@ -1,0 +1,20 @@
+--- a/mt_wifi/embedded/common/gas.c
++++ b/mt_wifi/embedded/common/gas.c
+@@ -145,7 +145,7 @@
+ 	req_data->ifindex = RtmpOsGetNetIfIndex(net_dev);
+ 	memcpy(req_data->peer_mac_addr, peer_mac_addr, 6);
+ 	req_data->anqp_req_len	= anqp_req_len;
+-	memcpy(req_data->anqp_req, anqp_req, anqp_req_len);
++	memcpy((void *)req_data->anqp_req, (const void *)anqp_req, anqp_req_len);
+ 	RtmpOSWrielessEventSend(net_dev, RT_WLAN_EVENT_CUSTOM,
+ 							OID_802_11_HS_ANQP_REQ, NULL, (PUCHAR)buf, buflen);
+ 	os_free_mem(buf);
+@@ -579,7 +579,7 @@
+ 				&GASFrame->Category,
+ 				Event->u.PEER_GAS_REQ_DATA.QueryReqLen + 9);
+ 	}
+-	NdisMoveMemory(Event->u.PEER_GAS_REQ_DATA.QueryReq, Pos, Event->u.PEER_GAS_REQ_DATA.QueryReqLen);
++	memmove((void *)Event->u.PEER_GAS_REQ_DATA.QueryReq, (const void *)Pos, Event->u.PEER_GAS_REQ_DATA.QueryReqLen);
+ 	Len += Event->u.PEER_GAS_REQ_DATA.QueryReqLen;
+ 	SendGASIndication(pAd, (GAS_EVENT_DATA *)Buf);
+ 	/* MlmeEnqueue(pAd, GAS_STATE_MACHINE, PEER_GAS_REQ, Len, Buf,0); */

@@ -1,0 +1,114 @@
+name: Ultimate Patch Refresh & Publish 6.12 Branch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 检查分支
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 安装依赖
+        run: |
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          sudo apt-get update
+          sudo apt-get install -y build-essential flex bison g++ gawk \
+            gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev quilt
+
+      - name: 克隆源代码
+        working-directory: /workdir
+        run: |
+          git clone https://github.com/openwrt/openwrt -b openwrt-25.12 openwrt --depth 1 || exit 1
+          git clone https://git01.mediatek.com/openwrt/feeds/mtk-openwrt-feeds mtk-openwrt-feeds --depth 1 || exit 1
+          
+          # 仅在此处添加提取逻辑，不影响后续步骤
+          cd mtk-openwrt-feeds
+          echo "MTK_LOG=$(git log -1 --pretty=format:'%h - %s')" >> $GITHUB_ENV
+
+      - name: 准备补丁环境并记录白名单
+        working-directory: /workdir
+        run: |
+          ls "$GITHUB_WORKSPACE/patch/patches-6.12" > /tmp/patch_whitelist.txt
+          rm -rf $GITHUB_WORKSPACE/patch/target/linux/mediatek/files-6.12
+          rm -rf $GITHUB_WORKSPACE/patch/target/linux/mediatek/patches-6.12
+          cp -rf $GITHUB_WORKSPACE/patch/files-6.12 $GITHUB_WORKSPACE/patch/target/linux/mediatek
+          cp -rf $GITHUB_WORKSPACE/patch/patches-6.12 $GITHUB_WORKSPACE/patch/target/linux/mediatek
+          cp -rf mtk-openwrt-feeds/25.12/files/target/linux/mediatek/patches-6.12/* $GITHUB_WORKSPACE/patch/target/linux/mediatek/patches-6.12
+          cp -rf mtk-openwrt-feeds/25.12/files/target/linux/mediatek/files-6.12 $GITHUB_WORKSPACE/patch/target/linux/mediatek
+          cp -rf mtk-openwrt-feeds/autobuild/unified/global/logan_common/25.12/files/target/linux/mediatek/patches-6.12/* $GITHUB_WORKSPACE/patch/target/linux/mediatek/patches-6.12
+          cp -rf mtk-openwrt-feeds/autobuild/unified/global/logan_common/25.12/files/target/linux/mediatek/files-6.12 $GITHUB_WORKSPACE/patch/target/linux/mediatek
+          rm -rf $GITHUB_WORKSPACE/patch/target/linux/mediatek/patches-6.12/999-sfp-*
+
+      - name: 注入补丁到源码树
+        run: |
+          for SUB in generic mediatek; do
+            if [ -d "patch/target/linux/$SUB" ]; then
+              echo "Injecting $SUB patches..."
+              mkdir -p "/workdir/openwrt/target/linux/$SUB"
+              cp -rf "patch/target/linux/$SUB"/* "/workdir/openwrt/target/linux/$SUB/"
+            fi
+          done
+
+      - name: 刷新补丁 (Refresh)
+        working-directory: /workdir/openwrt
+        run: |
+          ./scripts/feeds update -a && ./scripts/feeds install -a
+          echo "CONFIG_TARGET_mediatek=y" > .config
+          echo "CONFIG_TARGET_mediatek_filogic=y" >> .config
+          make defconfig
+          make target/linux/refresh V=s || exit 1
+
+      - name: 严格同步与白名单写回 (仅补丁)
+        run: |
+          SRC_LINUX="/workdir/openwrt/target/linux"
+          LOCAL_ROOT="$GITHUB_WORKSPACE/patch/target/linux"
+          LOCAL_ORIGIN_PATCHES="$GITHUB_WORKSPACE/patch/patches-6.12"
+
+          for SUB in generic mediatek; do
+            S_PATH="$SRC_LINUX/$SUB"
+            L_PATH="$LOCAL_ROOT/$SUB"
+            if [ -d "$L_PATH" ] && [ -d "$S_PATH" ]; then
+              echo ">>> 同步 $SUB 子目录结构..."
+              
+              # 清理并镜像同步 target 目录 (保持 build tree 完整性)
+              find "$S_PATH" -type f | while read -r src_file; do
+                REL_PATH="${src_file#$S_PATH/}"
+                if [ ! -f "$L_PATH/$REL_PATH" ]; then
+                  rm -f "$src_file"
+                fi
+              done
+              rsync -av --delete "$S_PATH/" "$L_PATH/"
+              
+              # 关键步骤：仅同步白名单补丁回原目录
+              if [ "$SUB" = "mediatek" ]; then
+                echo ">>> 执行白名单过滤同步 (仅限 patches)..."
+                while read -r patch_name; do
+                  if [ -f "$S_PATH/patches-6.12/$patch_name" ]; then
+                    cp -f "$S_PATH/patches-6.12/$patch_name" "$LOCAL_ORIGIN_PATCHES/"
+                    echo "      [UPDATED] $patch_name"
+                  fi
+                done < /tmp/patch_whitelist.txt
+              fi
+            fi
+          done
+
+      - name: 发布更改
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add --chmod +x patch/
+          if git diff --staged --quiet; then
+            echo "没有发现补丁内容变化。"
+          else
+            # 仅在此处应用提取的 MTK 提交信息
+            git commit -m "Based on MTK feed: ${{ env.MTK_LOG }}"
+            git push origin HEAD
+          fi
