@@ -1,0 +1,10 @@
+--- a/arch/arm64/boot/dts/mediatek/mt7981-rfb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt7981-rfb.dts
+@@ -239,3 +239,7 @@
+ &watchdog {
+ 	status = "okay";
+ };
++
++&wifi {
++	status = "okay";
++};

@@ -1,0 +1,16 @@
+--- a/mt_wifi/embedded/common/cmm_cfg.c
++++ b/mt_wifi/embedded/common/cmm_cfg.c
+@@ -13560,11 +13560,11 @@
+ 	INT ret = TRUE;
+ 
+ 	if (pAd->CommonCfg.ack_cts_enable[bandidx] == FALSE) {
+-		MTWF_DBG(pAd, DBG_CAT_ALL, DBG_SUBCAT_ALL, DBG_LVL_ERROR,
+-			"ERROR! BAND%u, ack_cts_enable=%u, CTS/ACK FEATURE is not enable!!\n",
++		MTWF_DBG(pAd, DBG_CAT_ALL, DBG_SUBCAT_ALL, DBG_LVL_WARN,
++			"BAND%u: CTS/ACK feature not active yet, forcing timeout config for init.\n",
+ 			 bandidx, pAd->CommonCfg.ack_cts_enable[bandidx]);
+-		return FALSE;
++		/* Patch: Do not return FALSE here to allow initialization config to reach firmware */
+ 	}
+ 
+ 	if (chip_ops->set_ack_timeout_mode_byband)
