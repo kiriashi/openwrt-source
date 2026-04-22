@@ -1,6 +1,6 @@
 --- a/drivers/net/ethernet/mediatek/mtk_hnat/hnat_debugfs.c
 +++ b/drivers/net/ethernet/mediatek/mtk_hnat/hnat_debugfs.c
-@@ -3952,19 +3952,19 @@ int hnat_init_debugfs(struct mtk_hnat *h
+@@ -3993,19 +3993,19 @@ int hnat_init_debugfs(struct mtk_hnat *h
  			    &hnat_whnat_fops);
  	debugfs_create_file("cpu_reason", 0444, root, h,
  			    &cpu_reason_fops);
@@ -25,7 +25,7 @@
  			    &hnat_qos_toggle_fops);
  	debugfs_create_file("hnat_version", 0444, root, h,
  			    &hnat_version_fops);
-@@ -3974,19 +3974,19 @@ int hnat_init_debugfs(struct mtk_hnat *h
+@@ -4015,19 +4015,19 @@ int hnat_init_debugfs(struct mtk_hnat *h
  			    &hnat_lan_if_fops);
  	debugfs_create_file("hnat_lan2_if", 0444, root, h,
  			    &hnat_lan2_if_fops);

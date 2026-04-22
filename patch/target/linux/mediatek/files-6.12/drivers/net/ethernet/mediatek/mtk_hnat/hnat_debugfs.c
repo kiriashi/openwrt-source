@@ -1103,6 +1103,44 @@ static int read_mib(struct mtk_hnat *h, u32 ppe_id,
 
 }
 
+static void hnat_vif_acct_update_dev(int ifindex,
+				     const struct rtnl_link_stats64 *stats64)
+{
+	struct net_device *dev;
+
+	rcu_read_lock();
+
+	dev = dev_get_by_index_rcu(&init_net, ifindex);
+	if (!dev)
+		goto out_unlock;
+
+	if (dev->netdev_ops->ndo_flow_offload_stats64_add)
+		dev->netdev_ops->ndo_flow_offload_stats64_add(dev, stats64);
+out_unlock:
+	rcu_read_unlock();
+}
+
+static void hnat_vif_acct_update(struct mtk_hnat *h, u32 ppe_id,
+				 u32 index, u64 bytes, u64 packets)
+{
+	struct rtnl_link_stats64 rx_stats = { .rx_packets = packets,
+					      .rx_bytes = bytes };
+	struct rtnl_link_stats64 tx_stats = { .tx_packets = packets,
+					      .tx_bytes = bytes };
+	struct hnat_accounting *acct;
+	int iif, oif;
+
+	acct = &h->acct[ppe_id][index];
+	iif = READ_ONCE(acct->iif);
+	oif = READ_ONCE(acct->oif);
+
+	if (iif)
+		hnat_vif_acct_update_dev(iif, &rx_stats);
+
+	if (oif)
+		hnat_vif_acct_update_dev(oif, &tx_stats);
+}
+
 static int hnat_nf_acct_update(struct mtk_hnat *h, u32 ppe_id,
 			       u32 index, u64 bytes, u64 packets)
 {
@@ -1205,7 +1243,10 @@ struct hnat_accounting *hnat_get_count(struct mtk_hnat *h, u32 ppe_id,
 		diff->packets = packets;
 	}
 
-	hnat_nf_acct_update(h, ppe_id, index, bytes, packets);
+	hnat_vif_acct_update(h, ppe_id, index, bytes, packets);
+
+	if (hnat_priv->nf_stat_en)
+		hnat_nf_acct_update(h, ppe_id, index, bytes, packets);
 
 	return &h->acct[ppe_id][index];
 }

@@ -1171,6 +1171,26 @@ static unsigned int is_ppe_support_type(struct sk_buff *skb)
 	return 0;
 }
 
+static void mtk_hnat_update_acct_ifindex(struct sk_buff *skb,
+					 bool is_ingress)
+{
+	struct hnat_accounting *acct;
+	struct foe_entry *entry;
+
+	if (!skb->dev || netif_is_bridge_master(skb->dev))
+		return;
+
+	if (!skb_hnat_is_hashed(skb) || skb_hnat_ppe(skb) >= CFG_PPE_NUM)
+		return;
+
+	entry = &hnat_priv->foe_table_cpu[skb_hnat_ppe(skb)][skb_hnat_entry(skb)];
+	acct = &hnat_priv->acct[skb_hnat_ppe(skb)][skb_hnat_entry(skb)];
+
+	/* save iface index for virtual device counter update */
+	if (entry_hnat_is_bound(entry))
+		cmpxchg(is_ingress ? &acct->iif : &acct->oif, 0, skb->dev->ifindex);
+}
+
 static unsigned int
 mtk_hnat_ipv6_nf_pre_routing(void *priv, struct sk_buff *skb,
 			     const struct nf_hook_state *state)
@@ -1221,6 +1241,11 @@ mtk_hnat_ipv6_nf_pre_routing(void *priv, struct sk_buff *skb,
 #endif
 	if (xlat_toggle)
 		mtk_464xlat_pre_process(skb);
+
+	/* save input iface index for virtual device counter update */
+	if (skb_hnat_reason(skb) == HIT_BIND_KEEPALIVE_DUP_OLD_HDR &&
+	    hnat_priv->data->per_flow_accounting)
+		mtk_hnat_update_acct_ifindex(skb, true);
 
 	return NF_ACCEPT;
 drop:
@@ -1309,6 +1334,11 @@ mtk_hnat_ipv4_nf_pre_routing(void *priv, struct sk_buff *skb,
 	}
 	if (xlat_toggle)
 		mtk_464xlat_pre_process(skb);
+
+	/* save input iface index for virtual device counter update */
+	if (skb_hnat_reason(skb) == HIT_BIND_KEEPALIVE_DUP_OLD_HDR &&
+	    hnat_priv->data->per_flow_accounting)
+		mtk_hnat_update_acct_ifindex(skb, true);
 
 	return NF_ACCEPT;
 drop:
@@ -1406,6 +1436,12 @@ mtk_hnat_br_nf_local_in(void *priv, struct sk_buff *skb,
 			return NF_ACCEPT;
 	}
 #endif
+
+	/* save input iface index for virtual device counter update */
+	if (skb_hnat_reason(skb) == HIT_BIND_KEEPALIVE_DUP_OLD_HDR &&
+	    hnat_priv->data->per_flow_accounting)
+		mtk_hnat_update_acct_ifindex(skb, true);
+
 	return NF_ACCEPT;
 drop:
 	if (skb && (debug_level >= 7))
@@ -2083,7 +2119,7 @@ hnat_skip_fill_inner:
 	    skb_hnat_entry(skb) < hnat_priv->foe_etry_num &&
 	    skb_hnat_ppe(skb) < CFG_PPE_NUM)
 		memset(&hnat_priv->acct[skb_hnat_ppe(skb)][skb_hnat_entry(skb)],
-		       0, sizeof(struct mib_entry));
+		       0, sizeof(struct hnat_accounting));
 
 	return 0;
 }
@@ -3836,9 +3872,13 @@ static unsigned int mtk_hnat_nf_post_routing(
 		skb_to_hnat_info(skb, out, entry, &hw_path);
 		break;
 	case HIT_BIND_KEEPALIVE_DUP_OLD_HDR:
-		/* update hnat count to nf_conntrack by keepalive */
-		if (hnat_priv->data->per_flow_accounting && hnat_priv->nf_stat_en)
+		/* update hnat count to virtual interface/nf_conntrack by keepalive */
+		if (hnat_priv->data->per_flow_accounting) {
+			/* save output iface index for virtual device counter update */
+			mtk_hnat_update_acct_ifindex(skb, false);
+
 			hnat_get_count(hnat_priv, skb_hnat_ppe(skb), skb_hnat_entry(skb), NULL);
+		}
 
 		if (fn && !mtk_hnat_accel_type(skb))
 			break;

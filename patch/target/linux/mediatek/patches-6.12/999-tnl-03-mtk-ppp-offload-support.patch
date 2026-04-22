@@ -1,6 +1,6 @@
 --- a/drivers/net/ppp/ppp_generic.c
 +++ b/drivers/net/ppp/ppp_generic.c
-@@ -1897,6 +1897,41 @@ ppp_send_frame(struct ppp *ppp, struct s
+@@ -1917,6 +1917,41 @@ ppp_send_frame(struct ppp *ppp, struct s
  	++ppp->dev->stats.tx_errors;
  }
  

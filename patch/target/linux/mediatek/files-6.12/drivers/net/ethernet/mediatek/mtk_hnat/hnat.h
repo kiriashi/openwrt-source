@@ -957,6 +957,8 @@ struct hnat_accounting {
 	u64 bytes;
 	u64 packets;
 	struct nf_conntrack_zone zone;
+	int iif; /* ingress device ifindex */
+	int oif; /* egress device ifindex */
 };
 
 enum mtk_hnat_version {

@@ -29,7 +29,7 @@
  
  #if defined(CONFIG_MEDIATEK_NETSYS_V3)
  #define MAX_PPE_NUM		3
-@@ -1058,6 +1059,7 @@ struct mtk_hnat {
+@@ -1060,6 +1061,7 @@ struct mtk_hnat {
  	struct net_device *g_wandev;
  	struct net_device *wifi_hook_if[MAX_IF_NUM];
  	struct extdev_entry *ext_if[MAX_EXT_DEVS];

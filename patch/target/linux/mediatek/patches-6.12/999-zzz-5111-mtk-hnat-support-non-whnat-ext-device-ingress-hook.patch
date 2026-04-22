@@ -23,7 +23,7 @@
  		skb_hnat_iface(skb) = FOE_MAGIC_GE_PPD;
  	} else if (IS_EXT(state->in)) {
  		skb_hnat_iface(skb) = FOE_MAGIC_EXT;
-@@ -1206,6 +1206,25 @@ mtk_hnat_ipv6_nf_pre_routing(void *priv,
+@@ -1226,6 +1226,25 @@ mtk_hnat_ipv6_nf_pre_routing(void *priv,
  	if (!skb)
  		goto drop;
  
@@ -49,7 +49,7 @@
  	if (!is_magic_tag_valid(skb))
  		return NF_ACCEPT;
  
-@@ -1285,6 +1304,25 @@ mtk_hnat_ipv4_nf_pre_routing(void *priv,
+@@ -1310,6 +1329,25 @@ mtk_hnat_ipv4_nf_pre_routing(void *priv,
  	if (!skb)
  		goto drop;
  
@@ -75,7 +75,7 @@
  	if (!is_magic_tag_valid(skb))
  		return NF_ACCEPT;
  
-@@ -1361,6 +1399,25 @@ mtk_hnat_br_nf_local_in(void *priv, stru
+@@ -1391,6 +1429,25 @@ mtk_hnat_br_nf_local_in(void *priv, stru
  	if (!skb)
  		goto drop;
  
@@ -101,7 +101,7 @@
  	if (!is_magic_tag_valid(skb))
  		return NF_ACCEPT;
  
-@@ -2642,7 +2699,7 @@ hnat_entry_bind:
+@@ -2678,7 +2735,7 @@ hnat_entry_bind:
  			entry.ipv4_hnapt.act_dp |= dev->ifindex & UDF_PINGPONG_IFIDX;
  		}
  	} else if (IS_EXT(dev) && (FROM_GE_PPD(skb) || FROM_GE_LAN_GRP(skb) ||
@@ -110,7 +110,7 @@
  		if (!hnat_priv->data->whnat && IS_GMAC1_MODE) {
  			entry.bfib1.vpm = 1;
  			entry.bfib1.vlan_layer = 1;
-@@ -3812,6 +3869,10 @@ static unsigned int mtk_hnat_nf_post_rou
+@@ -3848,6 +3905,10 @@ static unsigned int mtk_hnat_nf_post_rou
  		 && (hw_path.flags & BIT(DEV_PATH_TNL))))
  		return 0;
  
