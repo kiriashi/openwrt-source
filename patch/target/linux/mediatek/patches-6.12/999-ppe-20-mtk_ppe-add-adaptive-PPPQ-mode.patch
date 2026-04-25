@@ -32,7 +32,7 @@ Signed-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>
 
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -1988,6 +1988,11 @@ mtk_ppe_check_pppq_path(struct mtk_mac *
+@@ -2004,6 +2004,11 @@ mtk_ppe_check_pppq_path(struct mtk_mac *
  	    (dsa_port == 5 && wifi_rx))
  		return 1;
  

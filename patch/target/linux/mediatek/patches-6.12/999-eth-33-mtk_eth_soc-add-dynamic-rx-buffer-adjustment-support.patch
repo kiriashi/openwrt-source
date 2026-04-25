@@ -97,7 +97,7 @@ support
  			MTK_RX_CFG_SDL_OFFSET), reg_map->pdma.rx_cfg);
  
  		lro_ctrl_dw0 |= MTK_PDMA_LRO_SDL << MTK_CTRL_DW0_SDL_OFFSET;
-@@ -5479,9 +5476,21 @@ static void mtk_uninit(struct net_device
+@@ -5482,9 +5479,21 @@ static void mtk_uninit(struct net_device
  
  static int mtk_change_mtu(struct net_device *dev, int new_mtu)
  {
@@ -120,7 +120,7 @@ support
  
  	if (rcu_access_pointer(eth->prog) &&
  	    length > MTK_PP_MAX_BUF_SIZE) {
-@@ -5489,8 +5498,11 @@ static int mtk_change_mtu(struct net_dev
+@@ -5492,8 +5501,11 @@ static int mtk_change_mtu(struct net_dev
  		return -EINVAL;
  	}
  
@@ -134,7 +134,7 @@ support
  
  	return 0;
  }
-@@ -7068,6 +7080,8 @@ static int mtk_probe(struct platform_dev
+@@ -7071,6 +7083,8 @@ static int mtk_probe(struct platform_dev
  				   eth->netdev[i]->base_addr, eth->irq_fe[0]);
  	}
  
@@ -154,7 +154,7 @@ support
  #define	MTK_MAX_LRO_IP_CNT		2
  #define	MTK_HW_LRO_TIMER_UNIT		1	/* 20 us */
  #define	MTK_HW_LRO_REFRESH_TIME		50000	/* 1 sec. */
-@@ -1604,6 +1604,7 @@ struct mtk_eth {
+@@ -1605,6 +1605,7 @@ struct mtk_eth {
  
  	spinlock_t			dim_lock;
  

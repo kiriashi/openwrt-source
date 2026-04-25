@@ -17,7 +17,7 @@ Signed-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>
 
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -2034,6 +2034,18 @@ static inline void mtk_ppe_drop_config(s
+@@ -2051,6 +2051,18 @@ static inline void mtk_ppe_drop_config(s
  		mtk_w32(eth, config, PSE_PPE_DROP(2));
  }
  

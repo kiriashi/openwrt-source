@@ -1,6 +1,6 @@
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -339,6 +339,13 @@ static const char * const mtk_clks_sourc
+@@ -357,6 +357,13 @@ static const char * const mtk_clks_sourc
  	"top_netsys_warp_sel",
  };
  
@@ -14,7 +14,7 @@
  void mtk_w32(struct mtk_eth *eth, u32 val, unsigned reg)
  {
  	__raw_writel(val, eth->base + reg);
-@@ -1968,6 +1975,7 @@ static int mtk_tx_map(struct sk_buff *sk
+@@ -2064,6 +2071,7 @@ static int mtk_tx_map(struct sk_buff *sk
  	int i, frag_size = skb_headlen(skb);
  	bool gso_v4, gso_fraglist;
  	int offset = 0;
@@ -22,7 +22,7 @@
  
  	txq = netdev_get_tx_queue(dev, queue);
  	itxd = ring->next_free;
-@@ -1993,6 +2001,13 @@ next:
+@@ -2089,6 +2097,13 @@ next:
  		.first = true,
  	};
  
@@ -36,7 +36,7 @@
  	if (mtk_is_netsys_v3_or_greater(eth) &&
  	    unlikely(skb->inner_protocol == IPPROTO_ESP &&
  	    skb_tnl_cdrt(skb) && is_tnl_tag_valid(skb))) {
-@@ -2675,13 +2690,14 @@ static int mtk_poll_rx(struct napi_struc
+@@ -2771,13 +2786,14 @@ static int mtk_poll_rx(struct napi_struc
  	int done = 0, bytes = 0;
  	dma_addr_t dma_addr = DMA_MAPPING_ERROR;
  	int ppe_idx = 0;
@@ -52,7 +52,7 @@
  		u32 hash, reason;
  		int mac = 0;
  
-@@ -2716,7 +2732,15 @@ static int mtk_poll_rx(struct napi_struc
+@@ -2812,7 +2828,15 @@ static int mtk_poll_rx(struct napi_struc
  			     !eth->netdev[mac]))
  			goto release_desc;
  
@@ -69,7 +69,7 @@
  		ppe_idx = eth->mac[mac]->ppe_idx;
  
  		if (unlikely(test_bit(MTK_RESETTING, &eth->state)))
-@@ -2826,6 +2850,8 @@ static int mtk_poll_rx(struct napi_struc
+@@ -2922,6 +2946,8 @@ static int mtk_poll_rx(struct napi_struc
  				     __func__, skb_hnat_entry(skb), skb_hnat_sport(skb),
  				     skb_hnat_reason(skb), skb_hnat_alg(skb));
  #endif
@@ -80,7 +80,7 @@
  		skb->dev = netdev;
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -1978,6 +1978,11 @@ static inline bool mtk_interface_mode_is
+@@ -1994,6 +1994,11 @@ static inline bool mtk_interface_mode_is
  	}
  }
  

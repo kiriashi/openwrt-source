@@ -24,7 +24,7 @@ swapped when using Full UBI.
 
 --- a/arch/arm64/boot/dts/mediatek/mt7988a-rfb-spim-nand-factory.dtso
 +++ b/arch/arm64/boot/dts/mediatek/mt7988a-rfb-spim-nand-factory.dtso
-@@ -27,12 +27,12 @@
+@@ -23,12 +23,12 @@
  							reg = <0xfffee 0x6>;
  						};
  
