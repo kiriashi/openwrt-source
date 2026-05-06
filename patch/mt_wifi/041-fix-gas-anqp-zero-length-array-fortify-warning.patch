@@ -1,0 +1,1687 @@
+diff -uNr a/mt_wifi/ate/include/testmode_ioctl.h b/mt_wifi/ate/include/testmode_ioctl.h
+--- a/mt_wifi/ate/include/testmode_ioctl.h	2023-12-29 13:53:11.000000000 +0800
++++ b/mt_wifi/ate/include/testmode_ioctl.h	2026-04-02 16:04:05.309409300 +0800
+@@ -304,7 +304,7 @@
+ 
+ struct _HQA_MU_TBL {
+ 	UINT32 su_mu;
+-	UCHAR tbl[0];
++	UCHAR tbl[];
+ };
+ 
+ struct  GNU_PACKED _HQA_MU_USR_INIT_MCS {
+@@ -399,7 +399,7 @@
+ 	UCHAR addr1[MAC_ADDR_LEN];
+ 	UCHAR addr2[MAC_ADDR_LEN];
+ 	UCHAR addr3[MAC_ADDR_LEN];
+-	UCHAR payload[0];
++	UCHAR payload[];
+ };
+ 
+ struct GNU_PACKED _HQA_EXT_TXV {
+diff -uNr a/mt_wifi/embedded/dbg_txcmd/include/dbg_txcmd_framework.h b/mt_wifi/embedded/dbg_txcmd/include/dbg_txcmd_framework.h
+--- a/mt_wifi/embedded/dbg_txcmd/include/dbg_txcmd_framework.h	2023-12-29 14:37:56.000000000 +0800
++++ b/mt_wifi/embedded/dbg_txcmd/include/dbg_txcmd_framework.h	2026-04-02 16:04:05.309409300 +0800
+@@ -38,7 +38,7 @@
+ 	/** dvt parameter's data struct size (Length) */
+ 	UINT32  u4Lth;
+     /** dvt parameter's data struct (Value) */
+-	UINT8   u1cBuffer[0];
++	UINT8   u1cBuffer[];
+ } CMD_DBG_TXCMD_CTRL_EXT_T, *P_CMD_DBG_TXCMD_CTRL_EXT_T;
+ 
+ 
+diff -uNr a/mt_wifi/embedded/include/afc.h b/mt_wifi/embedded/include/afc.h
+--- a/mt_wifi/embedded/include/afc.h	2023-12-29 13:53:16.000000000 +0800
++++ b/mt_wifi/embedded/include/afc.h	2026-04-02 16:04:05.325323700 +0800
+@@ -210,7 +210,7 @@
+ 
+ struct afc_inquiredFrequency {
+ 	UINT8 NumOfOpFreqRange;
+-	struct afc_frequency_range freqRange[0];
++	struct afc_frequency_range freqRange[];
+ };
+ 
+ struct afc_glblOperClass {
+@@ -240,7 +240,7 @@
+ struct afc_response {
+ 	UINT16 status;
+ 	UINT8 Resv[2];
+-	UINT8 data[0];
++	UINT8 data[];
+ };
+ 
+ struct AFC_TX_PWR_INFO {
+diff -uNr a/mt_wifi/embedded/include/ap_vow.h b/mt_wifi/embedded/include/ap_vow.h
+--- a/mt_wifi/embedded/include/ap_vow.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/ap_vow.h	2026-04-02 16:04:05.341104900 +0800
+@@ -307,7 +307,7 @@
+ /* for UI - OID commands */
+ typedef struct _VOW_UI_CONFIG {
+ 	UINT8   ssid_num;
+-	UINT16  val[0];
++	UINT16  val[];
+ } VOW_UI_CONFIG, *P_VOW_UI_CONFIG;
+ 
+ typedef struct _NEAR_FAR_CTRL_T {
+diff -uNr a/mt_wifi/embedded/include/band_steering_def.h b/mt_wifi/embedded/include/band_steering_def.h
+--- a/mt_wifi/embedded/include/band_steering_def.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/band_steering_def.h	2026-04-02 16:04:05.341104900 +0800
+@@ -91,7 +91,7 @@
+ 	UINT8 RegulatoryClass;
+ 	UINT8 ChNum;
+ 	UINT8 PhyType;
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } BNDSTRG_NEIGHBOR_REP_INFO, *BNDSTRG_PNEIGHBOR_REP_INFO;
+ 
+ typedef struct _BND_STRG_CLI_TABLE {
+diff -uNr a/mt_wifi/embedded/include/cfg80211_cmm.h b/mt_wifi/embedded/include/cfg80211_cmm.h
+--- a/mt_wifi/embedded/include/cfg80211_cmm.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/cfg80211_cmm.h	2026-04-02 16:04:05.356761500 +0800
+@@ -246,7 +246,7 @@
+ 	UINT8 MIC[FT_MIC_LEN];			/* 16 Octects. */
+ 	UINT8 ANonce[FT_NONCE_LEN];		/* 32 Octects. */
+ 	UINT8 SNonce[FT_NONCE_LEN];		/* 32 Octects. */
+-	UINT8 Option[0];				/* 1:R1KHID, 2:GTK, 3:ROKHId, else:Res */
++	UINT8 Option[];				/* 1:R1KHID, 2:GTK, 3:ROKHId, else:Res */
+ } FT_FTIE, *PFT_FTIE;
+ 
+ 
+diff -uNr a/mt_wifi/embedded/include/dot11_base.h b/mt_wifi/embedded/include/dot11_base.h
+--- a/mt_wifi/embedded/include/dot11_base.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/dot11_base.h	2026-04-02 16:04:05.372805000 +0800
+@@ -131,7 +131,7 @@
+ 	UINT16		Frag:4;
+ 	UINT16		Sequence:12;
+ #endif /* !RT_BIG_ENDIAN */
+-	UCHAR		Octet[0];
++	UCHAR		Octet[];
+ } HEADER_802_11, *PHEADER_802_11;
+ 
+ 
+diff -uNr a/mt_wifi/embedded/include/dot11ac_vht.h b/mt_wifi/embedded/include/dot11ac_vht.h
+--- a/mt_wifi/embedded/include/dot11ac_vht.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/dot11ac_vht.h	2026-04-02 16:04:05.372805000 +0800
+@@ -529,7 +529,7 @@
+ 	UCHAR ra[MAC_ADDR_LEN];
+ 	UCHAR ta[MAC_ADDR_LEN];
+ 	SNDING_DIALOG_TOKEN token;
+-	SNDING_STA_INFO sta_info[0];
++	SNDING_STA_INFO sta_info[];
+ } VHT_NDPA_FRAME;
+ 
+ typedef struct GNU_PACKED _NDPA_PKT {
+diff -uNr a/mt_wifi/embedded/include/dot11k_rrm.h b/mt_wifi/embedded/include/dot11k_rrm.h
+--- a/mt_wifi/embedded/include/dot11k_rrm.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/dot11k_rrm.h	2026-04-02 16:04:05.372805000 +0800
+@@ -107,7 +107,7 @@
+ typedef struct GNU_PACKED _RRM_SUBFRAME_INFO {
+ 	UINT8 SubId;
+ 	UINT8 Length;
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } RRM_SUBFRAME_INFO, *PRRM_SUBFRAME_INFO;
+ 
+ typedef struct GNU_PACKED _RRM_BEACON_REQ_INFO {
+@@ -117,7 +117,7 @@
+ 	UINT16 MeasureDuration;
+ 	UINT8 MeasureMode;
+ 	UINT8 Bssid[MAC_ADDR_LEN];
+-	UINT8 Option[0];
++	UINT8 Option[];
+ } RRM_BEACON_REQ_INFO, *PRRM_BEACON_REQ_INFO;
+ 
+ typedef union GNU_PACKED _RRM_BEACON_REP_INFO_FIELD {
+@@ -144,7 +144,7 @@
+ 	UINT8 Bssid[MAC_ADDR_LEN];
+ 	UINT8 AnntaId;
+ 	UINT32 ParentTSF;
+-	UINT8 Option[0];
++	UINT8 Option[];
+ } RRM_BEACON_REP_INFO, *PRRM_BEACON_REP_INFO;
+ #ifndef WAPP_SUPPORT
+ typedef union GNU_PACKED _RRM_BSSID_INFO {
+@@ -198,7 +198,7 @@
+ 	UINT8 RegulatoryClass;
+ 	UINT8 ChNum;
+ 	UINT8 PhyType;
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } RRM_NEIGHBOR_REP_INFO, *RRM_PNEIGHBOR_REP_INFO;
+ 
+ typedef union GNU_PACKED __RRM_EN_CAP_IE {
+@@ -310,7 +310,7 @@
+ 
+ typedef struct GNU_PACKED _RRM_BSS_AVAILABLE_AC_INFO {
+ 	UINT16 AvailableAcBitMap;
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } RRM_BSS_AVAILABLE_AC_INFO, *PRRM_BSS_AVAILABLE_AC_INFO;
+ 
+ typedef struct GNU_PACKED _RRM_BSS_AC_DELAY_INFO {
+@@ -377,7 +377,7 @@
+ #endif
+ 	}  TIDField;
+ 	UINT8 Bin0Range;
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } RRM_TRANSMIT_MEASURE_INFO, *PRRM_TRANSMIT_MEASURE_INFO;
+ 
+ typedef union GNU_PACKED _RRM_MEASURE_REPORT_MODE {
+@@ -401,7 +401,7 @@
+ 	UINT8 Token;
+ 	RRM_MEASURE_REPORT_MODE ReportMode;
+ 	UINT8 ReportType;
+-	UINT8 Octect[0];
++	UINT8 Octect[];
+ } RRM_MEASURE_REP_INFO, *PRRM_MEASURE_REP_INFO;
+ 
+ #endif /* DOT11K_RRM_SUPPORT */
+diff -uNr a/mt_wifi/embedded/include/dot11r_ft.h b/mt_wifi/embedded/include/dot11r_ft.h
+--- a/mt_wifi/embedded/include/dot11r_ft.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/dot11r_ft.h	2026-04-02 16:04:05.372805000 +0800
+@@ -133,7 +133,7 @@
+ 	UINT8 MIC[FT_MIC_LEN];			/* 16 Octects. */
+ 	UINT8 ANonce[FT_NONCE_LEN];		/* 32 Octects. */
+ 	UINT8 SNonce[FT_NONCE_LEN];		/* 32 Octects. */
+-	UINT8 Option[0];				/* 1:R1KHID, 2:GTK, 3:ROKHId, else:Res */
++	UINT8 Option[];				/* 1:R1KHID, 2:GTK, 3:ROKHId, else:Res */
+ } FT_FTIE, *PFT_FTIE;
+ #endif
+ 
+@@ -152,7 +152,7 @@
+ typedef struct GNU_PACKED _FT_OPTION_FIELD {
+ 	UINT8 SubElementId;
+ 	UINT8 Len;
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } FT_OPTION_FIELD, *PFT_OPTION_FIELD;
+ 
+ /* Sub element frame of FTIE. */
+@@ -173,7 +173,7 @@
+ 	FT_GTK_KEY_INFO KeyInfo;	/* 2 octects. */
+ 	UINT8 KeyLen;
+ 	UINT8 RSC[8];				/* Receive seq counter. */
+-	UINT8 Key[0];				/* 5 to 32 octects. */
++	UINT8 Key[];				/* 5 to 32 octects. */
+ } FT_GTK_SUB_ELEMENT, *PFT_GTK_SUB_ELEMENT;
+ #endif /* DOT11R_FT_SUPPORT */
+ 
+@@ -218,7 +218,7 @@
+ 
+ 	/* REQ: RSN, Mobility Domain, or Fast BSS Transition element */
+ 	/* CONFIRM: RSN, Mobility Domain, Fast BSS Transition, or RIC element */
+-	UCHAR	InfoElm[0];/*[1024 - 14]; */
++	UCHAR	InfoElm[];/*[1024 - 14]; */
+ } GNU_PACKED FT_OVER_DS_ACTION_REQ_FONFIRM;
+ 
+ typedef struct _FT_OVER_DS_ACTION_RSP_ACK {
+@@ -242,7 +242,7 @@
+ 
+ 	/* RSP: RSN, Mobility Domain, or Fast BSS Transition element */
+ 	/* ACK: RSN, Mobility Domain, Fast BSS Transition, Timeout, or RIC element */
+-	UCHAR	InfoElm[0];/*[1024 - 16]; */
++	UCHAR	InfoElm[];/*[1024 - 16]; */
+ } GNU_PACKED FT_OVER_DS_ACTION_RSP_ACK;
+ 
+ 
+@@ -314,7 +314,7 @@
+ 	UINT8 Action;
+ 	UINT8 StaMac[MAC_ADDR_LEN];
+ 	UINT8 TargetApAddr[MAC_ADDR_LEN];
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } FT_ACTION, *PFT_ACTION;
+ 
+ typedef struct GNU_PACKED __FT_RRB {
+@@ -322,7 +322,7 @@
+ 	UINT8 FTPktType;
+ 	UINT16 FTActLen;
+ 	UINT8 APAdr[MAC_ADDR_LEN];
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } FT_RRB, *PFT_RRB;
+ #endif /* DOT11R_FT_SUPPORT */
+ 
+diff -uNr a/mt_wifi/embedded/include/dot11u_interworking.h b/mt_wifi/embedded/include/dot11u_interworking.h
+--- a/mt_wifi/embedded/include/dot11u_interworking.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/dot11u_interworking.h	2026-04-02 16:04:05.372805000 +0800
+@@ -51,7 +51,7 @@
+ 			 * Following are advertisement protocol element,
+ 			 * query request length, and query request
+ 			 */
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED GAS_INIT_REQ;
+ 		struct {
+ 			UCHAR Action;
+@@ -62,7 +62,7 @@
+ 			 *  Following are advertisement protocol element,
+ 			 *  query response length, and query response(optional)
+ 			 */
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED GAS_INIT_RSP;
+ 		struct {
+ 			UCHAR Action;
+@@ -78,7 +78,7 @@
+ 			 * Following are advertisment protocol element,
+ 			 * query response length, and query response(optional)
+ 			 */
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED GAS_CB_RSP;
+ 	} u;
+ } GAS_FRAME, *PGAS_FRAME;
+@@ -110,7 +110,7 @@
+ struct anqp_frame {
+ 	UINT16 info_id;
+ 	UINT16 length;
+-	char variable[0];
++	char variable[];
+ } __attribute__ ((packed));
+ 
+ #endif /* __DOT11U_HOTSPOT_H__ */
+diff -uNr a/mt_wifi/embedded/include/dot11z_tdls.h b/mt_wifi/embedded/include/dot11z_tdls.h
+--- a/mt_wifi/embedded/include/dot11z_tdls.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/dot11z_tdls.h	2026-04-02 16:04:05.372805000 +0800
+@@ -126,7 +126,7 @@
+ 	UINT8 MIC[FT_MIC_LEN];			/* 16 Octects. */
+ 	UINT8 ANonce[FT_NONCE_LEN];		/* 32 Octects. */
+ 	UINT8 SNonce[FT_NONCE_LEN];		/* 32 Octects. */
+-	UINT8 Option[0];				/* 1:R1KHID, 2:GTK, 3:ROKHId, else:Res */
++	UINT8 Option[];				/* 1:R1KHID, 2:GTK, 3:ROKHId, else:Res */
+ } FT_FTIE, *PFT_FTIE;
+ 
+ /*
+diff -uNr a/mt_wifi/embedded/include/fsm/fsm_cntl.h b/mt_wifi/embedded/include/fsm/fsm_cntl.h
+--- a/mt_wifi/embedded/include/fsm/fsm_cntl.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/fsm/fsm_cntl.h	2026-04-02 16:04:05.404683400 +0800
+@@ -66,7 +66,7 @@
+ typedef struct _CNTL_MLME_CONNECT_STRUCT {
+ 	enum _CNTL_CONNECT_TYPE conn_type;
+ 	UCHAR data_len;
+-	UCHAR data[0];
++	UCHAR data[];
+ } CNTL_MLME_CONNECT_STRUCT;
+ 
+ typedef struct _MLME_DISCONNECT_STRUCT {
+diff -uNr a/mt_wifi/embedded/include/gas.h b/mt_wifi/embedded/include/gas.h
+--- a/mt_wifi/embedded/include/gas.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/gas.h	2026-04-02 16:04:05.404683400 +0800
+@@ -153,13 +153,13 @@
+ 			UCHAR DialogToken;
+ 			UCHAR AdvertisementProID;
+ 			UINT16 QueryReqLen;
+-			UCHAR QueryReq[0];
++			UCHAR QueryReq[];
+ 		} GNU_PACKED GAS_REQ_DATA;
+ 		struct {
+ 			UINT16 StatusCode;
+ 			UCHAR AdvertisementProID;
+ 			UINT16 QueryRspLen;
+-			UCHAR QueryRsp[0];
++			UCHAR QueryRsp[];
+ 		} GNU_PACKED PEER_GAS_RSP_DATA;
+ 		struct {
+ 			UCHAR DialogToken;
+@@ -168,7 +168,7 @@
+ 			UINT16 StatusCode;
+ 			UCHAR AdvertisementProID;
+ 			UINT16 QueryRspLen;
+-			UCHAR QueryRsp[0];
++			UCHAR QueryRsp[];
+ 		} GNU_PACKED GAS_CB_RSP_DATA;
+ 		struct {
+ 			UCHAR DialogToken;
+@@ -182,7 +182,7 @@
+ 			UINT16 GASComebackDelay;
+ 			UCHAR AdvertisementProID;
+ 			UINT16 QueryRspLen;
+-			UCHAR QueryRsp[0];
++			UCHAR QueryRsp[];
+ 		} GNU_PACKED GAS_RSP_DATA;
+ 		struct {
+ 			UCHAR DialogToken;
+@@ -194,7 +194,7 @@
+ 			UCHAR DialogToken;
+ 			UCHAR AdvertisementProID;
+ 			UINT16 QueryReqLen;
+-			UCHAR QueryReq[0];
++			UCHAR QueryReq[];
+ 		} GNU_PACKED PEER_GAS_REQ_DATA;
+ 		struct {
+ 			UCHAR DialogToken;
+diff -uNr a/mt_wifi/embedded/include/hw_ctrl.h b/mt_wifi/embedded/include/hw_ctrl.h
+--- a/mt_wifi/embedded/include/hw_ctrl.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/hw_ctrl.h	2026-04-02 16:04:05.420535500 +0800
+@@ -497,7 +497,7 @@
+ typedef struct _CR4_QUERY_STRUC {
+ 	UINT16 number; /* Tx Statistic update method from CR4 */
+ 	UINT8 reserve[2];
+-	UINT16 list[0];
++	UINT16 list[];
+ } CR4_QUERY_STRUC, *PCR4_QUERY_STRUC;
+ 
+ #ifdef TXBF_SUPPORT
+diff -uNr a/mt_wifi/embedded/include/icap.h b/mt_wifi/embedded/include/icap.h
+--- a/mt_wifi/embedded/include/icap.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/icap.h	2026-04-02 16:04:05.420535500 +0800
+@@ -310,7 +310,7 @@
+ typedef struct _EXT_EVENT_SPECTRUM_RESULT_T {
+ 	UINT32 u4FuncIndex;
+ 	UINT32 u4FuncLength;
+-	UINT8  aucEvent[0];
++	UINT8  aucEvent[];
+ } EXT_EVENT_SPECTRUM_RESULT_T, *PEXT_EVENT_SPECTRUM_RESULT_T;
+ 
+ typedef struct GNU_PACKED _EXT_EVENT_RBIST_ADDR_T {
+diff -uNr a/mt_wifi/embedded/include/mlme.h b/mt_wifi/embedded/include/mlme.h
+--- a/mt_wifi/embedded/include/mlme.h	2023-12-29 13:53:16.000000000 +0800
++++ b/mt_wifi/embedded/include/mlme.h	2026-04-02 16:04:05.831623000 +0800
+@@ -513,7 +513,7 @@
+ 	UCHAR				ElementID;		/* ID = IE_2040_BSS_INTOLERANT_REPORT = 73 */
+ 	UCHAR				Len;
+ 	UCHAR				RegulatoryClass;
+-	UCHAR				ChList[0];
++	UCHAR				ChList[];
+ } BSS_2040_INTOLERANT_CH_REPORT, *PBSS_2040_INTOLERANT_CH_REPORT;
+ 
+ 
+@@ -928,7 +928,7 @@
+ 	UCHAR	Action;
+ 	UCHAR	Token;
+ 	USHORT	Repetition;
+-	UCHAR   data[0];
++	UCHAR   data[];
+ }   FRAME_RM_REQ_ACTION, *PFRAME_RM_REQ_ACTION;
+ 
+ typedef struct GNU_PACKED _HT_EXT_CHANNEL_SWITCH_ANNOUNCEMENT_IE {
+@@ -1221,7 +1221,7 @@
+ 	UCHAR phy_mode;
+ 
+ 	/*must be last because vendor_ie len is not the same for each bss */
+-	char vendor_ie[0];
++	char vendor_ie[];
+ };
+ #endif /* CUSTOMER_VENDOR_IE_SUPPORT */
+ 
+diff -uNr a/mt_wifi/embedded/include/oid.h b/mt_wifi/embedded/include/oid.h
+--- a/mt_wifi/embedded/include/oid.h	2026-04-02 16:03:19.915994500 +0800
++++ b/mt_wifi/embedded/include/oid.h	2026-04-02 16:04:05.847359600 +0800
+@@ -868,7 +868,7 @@
+ struct GNU_PACKED owe_event {
+ 	UINT8 event_id;
+ 	UINT32 event_len;
+-	UINT8 event_body[0];
++	UINT8 event_body[];
+ };
+ 
+ struct GNU_PACKED owe_trans_channel_change_info {
+@@ -1901,52 +1901,52 @@
+ struct bbp_info {
+ 	UINT32 bbp_start;
+ 	UINT32 bbp_end;
+-	UINT8 bbp_value[0];
++	UINT8 bbp_value[];
+ };
+ 
+ struct bbp32_info {
+ 	UINT32 bbp_start;
+ 	UINT32 bbp_end;
+-	UINT32 bbp_value[0];
++	UINT32 bbp_value[];
+ };
+ 
+ struct rf_info {
+ 	UINT16 rf_start;
+ 	UINT16 rf_end;
+-	UINT8 rf_value[0];
++	UINT8 rf_value[];
+ };
+ 
+ struct rf_bank_info {
+ 	UINT8 rf_bank;
+ 	UINT16 rf_start;
+ 	UINT16 rf_end;
+-	UINT8 rf_value[0];
++	UINT8 rf_value[];
+ };
+ 
+ struct rf_index_info {
+ 	UINT8 rf_index;
+ 	UINT16 rf_start;
+ 	UINT16 rf_end;
+-	UINT32 rf_value[0];
++	UINT32 rf_value[];
+ };
+ 
+ struct mac_info {
+ 	UINT32 mac_start;
+ 	UINT32 mac_end;
+-	UINT32 mac_value[0];
++	UINT32 mac_value[];
+ };
+ 
+ struct mem_map_info {
+ 	UINT32 base;
+ 	UINT16 mem_map_start;
+ 	UINT16 mem_map_end;
+-	UINT32 mem_map_value[0];
++	UINT32 mem_map_value[];
+ };
+ 
+ struct e2p_info {
+ 	UINT16 e2p_start;
+ 	UINT16 e2p_end;
+-	UINT16 e2p_value[0];
++	UINT16 e2p_value[];
+ };
+ 
+ struct phy_mode_info {
+@@ -1962,7 +1962,7 @@
+ 	UINT32 ifindex;
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 anqp_req_len;
+-	UCHAR anqp_req[0];
++	UCHAR anqp_req[];
+ };
+ 
+ struct anqp_rsp_data {
+@@ -1970,7 +1970,7 @@
+ 	UCHAR peer_mac_addr[6];
+ 	UINT16 status;
+ 	UINT32 anqp_rsp_len;
+-	UCHAR anqp_rsp[0];
++	UCHAR anqp_rsp[];
+ };
+ 
+ struct hs_onoff {
+@@ -1985,7 +1985,7 @@
+ 	UINT32 ifindex;
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 wnm_req_len;
+-	UCHAR wnm_req[0];
++	UCHAR wnm_req[];
+ };
+ #endif
+ struct wapp_param_setting {
+@@ -1996,7 +1996,7 @@
+ struct location_IE {
+ 	UINT16 type;
+ 	UINT8 len;
+-	UCHAR location_buf[0];
++	UCHAR location_buf[];
+ };
+ 
+ struct proxy_arp_entry {
+@@ -2006,7 +2006,7 @@
+ 	UCHAR IsDAD;
+ 	UCHAR source_mac_addr[6];
+ 	UCHAR target_mac_addr[6];
+-	UCHAR ip_addr[0];
++	UCHAR ip_addr[];
+ };
+ 
+ 
+@@ -2027,14 +2027,14 @@
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 type;
+ 	UINT32 wnm_req_len;
+-	UCHAR wnm_req[0];
++	UCHAR wnm_req[];
+ };
+ 
+ struct qosmap_data {
+ 	UINT32 ifindex;
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 qosmap_len;
+-	UCHAR qosmap[0];
++	UCHAR qosmap[];
+ };
+ 
+ 
+@@ -2195,20 +2195,20 @@
+ typedef struct GNU_PACKED rrm_command_s {
+ 	UINT8 command_id;
+ 	UINT32 command_len;
+-	UINT8 command_body[0];
++	UINT8 command_body[];
+ } rrm_command_t, *p_rrm_command_t;
+ 
+ typedef struct GNU_PACKED rrm_event_s {
+ 	UINT8 event_id;
+ 	UINT32 event_len;
+-	UINT8 event_body[0];
++	UINT8 event_body[];
+ } rrm_event_t, *p_rrm_event_t;
+ 
+ struct GNU_PACKED nr_req_data {
+ 	UINT32 ifindex;
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 nr_req_len;
+-	UCHAR nr_req[0];
++	UCHAR nr_req[];
+ };
+ 
+ typedef struct GNU_PACKED nr_rsp_data_s {
+@@ -2216,7 +2216,7 @@
+ 	UINT8 dialog_token;
+ 	UINT8 peer_address[MAC_ADDR_LEN];
+ 	UINT32 nr_rsp_len;
+-	UINT8 nr_rsp[0];
++	UINT8 nr_rsp[];
+ } nr_rsp_data_t, *p_nr_rsp_data_t;
+ 
+ typedef struct GNU_PACKED bcn_req_data_s {
+@@ -2224,7 +2224,7 @@
+ 	UINT8 dialog_token;
+ 	UINT8 peer_address[MAC_ADDR_LEN];
+ 	UINT32 bcn_req_len;
+-	UINT8 bcn_req[0];
++	UINT8 bcn_req[];
+ } bcn_req_data_t, *p_bcn_req_data_t;
+ 
+ /**
+@@ -2287,7 +2287,7 @@
+ 	UINT32 ifindex;
+ 	UINT8 peer_address[6];
+ 	UINT32 bcn_rsp_len;
+-	UINT8 bcn_rsp[0];
++	UINT8 bcn_rsp[];
+ } bcn_rsp_data_t, *p_bcn_rsp_data_t;
+ 
+ /**
+@@ -2341,7 +2341,7 @@
+ 	UINT8 peer_address[MAC_ADDR_LEN];
+ 	UINT8 dialogtoken;
+ 	UINT8 nrresp_info_count;
+-	struct nr_info nrresp_info[0];
++	struct nr_info nrresp_info[];
+ } rrm_nrrsp_info_custom_t, *p_rrm_nrrsp_info_custom_t;
+ 
+ 
+@@ -2358,13 +2358,13 @@
+ struct GNU_PACKED wnm_command {
+ 	UINT8 command_id;
+ 	UINT32 command_len;
+-	UINT8 command_body[0];
++	UINT8 command_body[];
+ };
+ 
+ struct GNU_PACKED wnm_event {
+ 	UINT8 event_id;
+ 	UINT8 event_len;
+-	UINT8 event_body[0];
++	UINT8 event_body[];
+ };
+ 
+ #define URL_LEN 40
+@@ -2385,40 +2385,40 @@
+ 	UINT8 dialog_token;
+ 	UINT32 timeout;
+ 	UINT32 btm_req_len;
+-	UINT8 btm_req[0];
++	UINT8 btm_req[];
+ } btm_req_ie_data_t, *p_btm_req_ie_data_t;
+ 
+ struct GNU_PACKED btm_req_data {
+ 	UINT32 ifindex;
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 btm_req_len;
+-	UCHAR btm_req[0];
++	UCHAR btm_req[];
+ };
+ 
+ struct GNU_PACKED btm_query_data {
+ 	UINT32 ifindex;
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 btm_query_len;
+-	UCHAR btm_query[0];
++	UCHAR btm_query[];
+ };
+ 
+ struct GNU_PACKED btm_rsp_data {
+ 	UINT32 ifindex;
+ 	UCHAR peer_mac_addr[6];
+ 	UINT32 btm_rsp_len;
+-	UCHAR btm_rsp[0];
++	UCHAR btm_rsp[];
+ };
+ 
+ struct GNU_PACKED reduced_neighbor_list_data {
+ 	u32 ifindex;
+ 	u32 reduced_neighbor_list_len;
+-	char reduced_neighbor_list_req[0];
++	char reduced_neighbor_list_req[];
+ };
+ 
+ struct GNU_PACKED neighbor_list_data {
+ 	u32 ifindex;
+ 	u32 neighbor_list_len;
+-	char neighbor_list_req[0];
++	char neighbor_list_req[];
+ };
+ 
+ /**
+@@ -2451,7 +2451,7 @@
+ 	UINT8 url_len;
+ 	UINT8 url[URL_LEN];
+ 	UINT8 num_candidates;
+-	struct nr_info candidates[0];
++	struct nr_info candidates[];
+ } btm_reqinfo_t, *p_btm_reqinfo_t;
+ 
+ #define MAX_SSID_BSSID_ENTRY_NUM 10
+diff -uNr a/mt_wifi/embedded/include/qos.h b/mt_wifi/embedded/include/qos.h
+--- a/mt_wifi/embedded/include/qos.h	2026-04-02 16:03:20.562426500 +0800
++++ b/mt_wifi/embedded/include/qos.h	2026-04-02 16:04:05.847359600 +0800
+@@ -118,7 +118,7 @@
+ 	UCHAR   RobustAction;
+ 	UCHAR	DialogToken;
+ 	USHORT	Status;
+-	UCHAR   Data[0];
++	UCHAR   Data[];
+ } FRAME_MSCSRSP_ACTION, *PFRAME_MSCSRSP_ACTION;
+ 
+ typedef struct GNU_PACKED _FRAME_DABS_ACTION {
+@@ -143,7 +143,7 @@
+ 	UCHAR   ReqType;
+ 	USHORT  UserPrioCtrl;
+ 	UINT	StreamTimeOut;
+-	UCHAR   Data[0];
++	UCHAR   Data[];
+ } MSCS_DESC, *PMSCS_DESC;
+ 
+ typedef struct GNU_PACKED _TCLAS_ELEM {
+@@ -185,7 +185,7 @@
+ 	UINT	MiniPHYRate;
+ 	USHORT	SurplusBandwidthAllowance;
+ 	USHORT	MediumTime;
+-	UCHAR	DMGAttributes[0];
++	UCHAR	DMGAttributes[];
+ } TSPEC_ELEM, *PTSPEC_ELEM;
+ 
+ struct GNU_PACKED wapp_qos_action_frame {
+diff -uNr a/mt_wifi/embedded/include/rrm_cmm.h b/mt_wifi/embedded/include/rrm_cmm.h
+--- a/mt_wifi/embedded/include/rrm_cmm.h	2023-12-29 13:53:16.000000000 +0800
++++ b/mt_wifi/embedded/include/rrm_cmm.h	2026-04-02 16:04:05.863004200 +0800
+@@ -171,7 +171,7 @@
+ 	UINT8 measuretype;
+ 	UINT8 stamac[MAC_ADDR_LEN];
+ 	UINT16 DataLen;
+-	UCHAR Data[0];
++	UCHAR Data[];
+ } BCN_EVENT_DATA, *PBCN_EVENT_DATA;
+ 
+ /*this struct is used for mlme*/
+@@ -180,7 +180,7 @@
+ 	UINT8 MeasureReqToken;
+ 	UINT8 stamac[MAC_ADDR_LEN];
+ 	UINT16 DataLen;
+-	UCHAR Data[0];
++	UCHAR Data[];
+ } NR_EVENT_DATA, *PNR_EVENT_DATA;
+ 
+ typedef struct GNU_PACKED _RRM_FRAME {
+@@ -190,7 +190,7 @@
+ 		struct {
+ 			UCHAR Action;
+ 			UCHAR DialogToken;
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED NR_RSP;
+ 	} u;
+ } RRM_FRAME, *PRRM_FRAME;
+diff -uNr a/mt_wifi/embedded/include/rtmp.h b/mt_wifi/embedded/include/rtmp.h
+--- a/mt_wifi/embedded/include/rtmp.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/rtmp.h	2026-04-02 16:04:05.863004200 +0800
+@@ -7453,7 +7453,7 @@
+ typedef struct TLV_ELEMENT {
+ 	UINT_32 tag_type;
+ 	UINT_32 body_len;
+-	UINT_8 aucbody[0];
++	UINT_8 aucbody[];
+ } TLV_ELEMENT_T, *PTLV_ELEMENT_T;
+ 
+ enum CSI_DATA_TLV_TAG {
+diff -uNr a/mt_wifi/embedded/include/security/dot11i_wpa.h b/mt_wifi/embedded/include/security/dot11i_wpa.h
+--- a/mt_wifi/embedded/include/security/dot11i_wpa.h	2026-04-02 16:03:20.466978900 +0800
++++ b/mt_wifi/embedded/include/security/dot11i_wpa.h	2026-04-02 16:04:05.910252300 +0800
+@@ -229,7 +229,7 @@
+ 	UCHAR               Len;
+ 	UCHAR               OUI[3];
+ 	UCHAR               DataType;
+-	UCHAR				octet[0];
++	UCHAR				octet[];
+ }   KDE_HDR, *PKDE_HDR;
+ 
+ /*802.11i D10 page 83 */
+@@ -245,7 +245,7 @@
+ 	UCHAR               Kid:2;
+ 	UCHAR               rsv1;
+ #endif
+-	UCHAR               GTK[0];
++	UCHAR               GTK[];
+ }   GTK_KDE, *PGTK_KDE;
+ 
+ /* For WPA1 */
+diff -uNr a/mt_wifi/embedded/include/sniffer/sniffer.h b/mt_wifi/embedded/include/sniffer/sniffer.h
+--- a/mt_wifi/embedded/include/sniffer/sniffer.h	2023-12-29 13:53:16.000000000 +0800
++++ b/mt_wifi/embedded/include/sniffer/sniffer.h	2026-04-02 16:04:05.927259300 +0800
+@@ -111,7 +111,7 @@
+ 
+ struct mtk_radiotap_header {
+ 	struct ieee80211_radiotap_header rt_hdr;
+-	UCHAR variable[0];
++	UCHAR variable[];
+ };
+ 
+ #define HT_BW(p) ((p) & IEEE80211_RADIOTAP_MCS_BW_MASK)
+@@ -168,7 +168,7 @@
+ 	UINT16		Frag:4;
+ 	UINT16		Sequence:12;
+ #endif /* !RT_BIG_ENDIAN */
+-	UCHAR		Octet[0];
++	UCHAR		Octet[];
+ } DOT_11_HDR;
+ 
+ 
+diff -uNr a/mt_wifi/embedded/include/spectrum_def.h b/mt_wifi/embedded/include/spectrum_def.h
+--- a/mt_wifi/embedded/include/spectrum_def.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/spectrum_def.h	2026-04-02 16:04:05.929452000 +0800
+@@ -174,7 +174,7 @@
+ 	UINT8 Token;
+ 	MEASURE_REQ_MODE ReqMode;
+ 	UINT8 ReqType;
+-	UINT8 Oct[0];
++	UINT8 Oct[];
+ } MEASURE_REQ_INFO, *PMEASURE_REQ_INFO;
+ 
+ typedef union GNU_PACKED _MEASURE_BASIC_REPORT_MAP {
+@@ -244,7 +244,7 @@
+ 	UINT8 Token;
+ 	UINT8 ReportMode;
+ 	UINT8 ReportType;
+-	UINT8 Octect[0];
++	UINT8 Octect[];
+ } MEASURE_REPORT_INFO, *PMEASURE_REPORT_INFO;
+ 
+ #ifdef QUIET_SUPPORT
+diff -uNr a/mt_wifi/embedded/include/wapp/wapp_cmm_type.h b/mt_wifi/embedded/include/wapp/wapp_cmm_type.h
+--- a/mt_wifi/embedded/include/wapp/wapp_cmm_type.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/wapp/wapp_cmm_type.h	2026-04-02 16:04:05.952555800 +0800
+@@ -536,7 +536,7 @@
+ 
+ typedef struct GNU_PACKED _wsc_apcli_config_msg {
+ 	u32 profile_count;
+-	wsc_apcli_config apcli_config[0];
++	wsc_apcli_config apcli_config[];
+ } wsc_apcli_config_msg, *p_wsc_apcli_config_msg;
+ 
+ typedef struct GNU_PACKED _wdev_ap_metric {
+@@ -764,7 +764,7 @@
+ 	u32 interface_index;
+ 	u8 more_bss;
+ 	u8 bss_count;
+-	struct scan_bss_info bss[0];
++	struct scan_bss_info bss[];
+ };
+ 
+ struct GNU_PACKED wapp_wsc_scan_info {
+@@ -848,7 +848,7 @@
+ 	u32 no_cck;
+ 	u32 frm_len;
+ 	u16 seq_no;
+-	char frm[0];
++	char frm[];
+ };
+ 
+ struct GNU_PACKED roc_req {
+@@ -864,7 +864,7 @@
+ 	u32 chan;
+ 	u32 frm_len;
+ 	u32 is_gas;
+-	u8 frm[0];
++	u8 frm[];
+ };
+ 
+ struct GNU_PACKED wapp_dpp_frm_tx_status {
+diff -uNr a/mt_wifi/embedded/include/wnm.h b/mt_wifi/embedded/include/wnm.h
+--- a/mt_wifi/embedded/include/wnm.h	2023-12-29 14:37:52.000000000 +0800
++++ b/mt_wifi/embedded/include/wnm.h	2026-04-02 16:04:05.958203100 +0800
+@@ -74,33 +74,33 @@
+ 		struct {
+ 			UCHAR Action;
+ 			UCHAR DialogToken;
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED BTM_QUERY;
+ 
+ 		struct {
+ 			UCHAR Action;
+ 			UCHAR DialogToken;
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED BTM_REQ;
+ 
+ 		struct {
+ 			UCHAR Action;
+ 			UCHAR DialogToken;
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED BTM_RSP;
+ 
+ 		struct {
+ 			UCHAR Action;
+ 			UCHAR DialogToken;
+ 			UCHAR Type;
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED WNM_NOTIFY_REQ;
+ 
+ 		struct {
+ 			UCHAR Action;
+ 			UCHAR DialogToken;
+ 			UCHAR RespStatus;
+-			UCHAR Variable[0];
++			UCHAR Variable[];
+ 		} GNU_PACKED WNM_NOTIFY_RSP;
+ 	} u;
+ } WNM_FRAME, *PWNM_FRAME;
+@@ -165,19 +165,19 @@
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 BTMQueryLen;
+-			UCHAR BTMQuery[0];
++			UCHAR BTMQuery[];
+ 		} GNU_PACKED BTM_QUERY_DATA;
+ 
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 BTMRspLen;
+-			UCHAR BTMRsp[0];
++			UCHAR BTMRsp[];
+ 		} GNU_PACKED BTM_RSP_DATA;
+ 
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 BTMReqLen;
+-			UCHAR BTMReq[0];
++			UCHAR BTMReq[];
+ 		} GNU_PACKED PEER_BTM_REQ_DATA;
+ #endif /* CONFIG_STA_SUPPORT */
+ 
+@@ -185,19 +185,19 @@
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 BTMReqLen;
+-			UCHAR BTMReq[0];
++			UCHAR BTMReq[];
+ 		} GNU_PACKED BTM_REQ_DATA;
+ 
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 BTMQueryLen;
+-			UCHAR BTMQuery[0];
++			UCHAR BTMQuery[];
+ 		} GNU_PACKED PEER_BTM_QUERY_DATA;
+ 
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 BTMRspLen;
+-			UCHAR BTMRsp[0];
++			UCHAR BTMRsp[];
+ 		} GNU_PACKED PEER_BTM_RSP_DATA;
+ #endif /* CONFIG_AP_SUPPORT */
+ 	} u;
+@@ -473,13 +473,13 @@
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 WNMNotifyReqLen;
+-			UCHAR WNMNotifyReq[0];
++			UCHAR WNMNotifyReq[];
+ 		} GNU_PACKED WNM_NOTIFY_REQ_DATA;
+ 
+ 		struct {
+ 			UCHAR DialogToken;
+ 			UINT16 WNMNotifyRspLen;
+-			UCHAR WNMNotifyRsp[0];
++			UCHAR WNMNotifyRsp[];
+ 		} GNU_PACKED WNM_NOTIFY_RSP_DATA;
+ #endif /* CONFIG_AP_SUPPORT */
+ 	} u;
+diff -uNr a/mt_wifi/include/hw_ctrl/cmm_fw_uni_cmd.h b/mt_wifi/include/hw_ctrl/cmm_fw_uni_cmd.h
+--- a/mt_wifi/include/hw_ctrl/cmm_fw_uni_cmd.h	2023-12-29 13:53:10.000000000 +0800
++++ b/mt_wifi/include/hw_ctrl/cmm_fw_uni_cmd.h	2026-04-02 16:04:06.538162600 +0800
+@@ -155,7 +155,7 @@
+ 	UINT8 aucPadding[2];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0];
++	UINT8 aucTlvBuffer[];
+ } UNI_CMD_DEVINFO_T, *P_UNI_CMD_DEVINFO_T;
+ 
+ /* DevInfo information (Tag0) */
+@@ -219,7 +219,7 @@
+     UINT8 aucPadding[3];
+ 
+ 	/* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_BSSINFO_T, *P_UNI_CMD_BSSINFO_T;
+ 
+ /* BssInfo basic information (Tag0) */
+@@ -359,7 +359,7 @@
+     UINT8  ucAction;
+     UINT8  aucPktContentType;
+     UINT16 u2PktLength;
+-    UINT8  aucPktContent[0];
++    UINT8  aucPktContent[];
+ } UNI_CMD_BSSINFO_BCN_CONTENT_T, *P_UNI_CMD_BSSINFO_BCN_CONTENT_T;
+ 
+ typedef enum _BCN_CONTENT_ACTION_T {
+@@ -640,7 +640,7 @@
+     UINT8  fgEnable;
+     UINT16 u2Wcid;
+     UINT16 u2OffloadPktLength;
+-    UINT8  aucPktContent[0];
++    UINT8  aucPktContent[];
+ } UNI_CMD_BSSINFO_OFFLOAD_PKT_T, *P_UNI_CMD_BSSINFO_OFFLOAD_PKT;
+ 
+ typedef INT32 (*PFN_BSSINFO_OFFLOAD_PKT_HANDLE)(struct _RTMP_ADAPTER *pAd,
+@@ -682,7 +682,7 @@
+     UINT8 aucPadding[1];
+ 
+ 	/* TLV */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_STAREC_T, *P_UNI_CMD_STAREC_T;
+ 
+ typedef struct GNU_PACKED _UNI_CMD_STAREC_WTBL_T {
+@@ -690,7 +690,7 @@
+ 	/* STAREC format, content is WTBL format. */
+ 	UINT16	u2Tag;
+ 	UINT16	u2Length;
+-	UINT8	aucBuffer[0];
++	UINT8	aucBuffer[];
+ } UNI_CMD_CMD_STAREC_WTBL_T, *P_UNI_CMD_CMD_STAREC_WTBL_T;
+ 
+ typedef struct GNU_PACKED _UNI_CMD_STAREC_HE_INFO_T {
+@@ -780,7 +780,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT_8 aucTlvBuffer[0];
++    UINT_8 aucTlvBuffer[];
+ } UNI_CMD_EDCA_T, *P_UNI_CMD_EDCA_T;
+ 
+ /* EDCA set command Tag */
+@@ -827,7 +827,7 @@
+     UINT8 ucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 						*
+ 						*   TAG                              | ID  | structure
+ 						*   ---------------------------------|-----|--------------
+@@ -948,7 +948,7 @@
+     UINT8 ucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 						*
+ 						*   TAG                              | ID  | structure
+ 						*   ---------------------------------|-----|--------------
+@@ -1005,7 +1005,7 @@
+     UINT8 ucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 						*
+ 						*   TAG                      | ID  | structure
+ 						*   -------------------------|-----|--------------
+@@ -1038,7 +1038,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_SMESH_T, *P_UNI_CMD_SMESH_T;
+ 
+ /* Smesh command Tag */
+@@ -1069,7 +1069,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0]; /**<the TLVs includer in this field:
++    UINT8 aucTlvBuffer[]; /**<the TLVs includer in this field:
+ 							*
+ 							*  TAG                                   | ID   | structure
+ 							*  -------------                         | -----| -------------
+@@ -1146,7 +1146,7 @@
+ 	UINT8 aucPadding[3];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0]; /**< the TLVs included in this field:
++	UINT8 aucTlvBuffer[]; /**< the TLVs included in this field:
+ 		*
+ 		*	TAG 							 | ID  | structure
+ 		*	-------------					 | ----| -------------
+@@ -1331,7 +1331,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0]; /**<the TLVs includer in this field:
++    UINT8 aucTlvBuffer[]; /**<the TLVs includer in this field:
+ 							*
+ 							*  TAG                    | ID   | structure
+ 							*  -------------          | -----| -------------
+@@ -1417,7 +1417,7 @@
+     UINT8 ucBssInfoIdx;
+     UINT8 aucPadding[3];
+     /* tlv */
+-    UINT8 aucTlvBuffer[0]; /**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[]; /**< the TLVs included in this field:
+ 							*
+ 							*  TAG                         | ID   | structure
+ 							*  -------------               | -----| -------------
+@@ -1473,7 +1473,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_MUAR_T, *P_UNI_CMD_MUAR_T;
+ 
+ /* MC Config Parameters (Tag2) */
+@@ -1496,7 +1496,7 @@
+ 	UINT8 ucReserved[4];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++	UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 							*
+ 							*   TAG                      | ID  | structure
+ 							*   -------------------------|-----|--------------
+@@ -1527,7 +1527,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_TXCMD_CTRL_T, *P_UNI_CMD_TXCMD_CTRL_T;
+ 
+ /* TXCMD ctrl cmd tags */
+@@ -1569,7 +1569,7 @@
+     UINT8  ucDlUlidx;
+     UINT8  ucRsv[2];
+ 
+-    UINT8  aucBuffer[0];
++    UINT8  aucBuffer[];
+ } UNI_CMD_SET_TXCMD_DBG_CMD_CTRL_T, *P_UNI_CMD_SET_TXCMD_DBG_CMD_CTRL_T;
+ 
+ typedef struct GNU_PACKED _UNI_CMD_SET_TXCMD_DBG_CTRL_ENTRY_T {
+@@ -1606,7 +1606,7 @@
+     UINT8 aucReserved[4];  /*reserved fixed field*/
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];  /*TLVs*/
++    UINT8 aucTlvBuffer[];  /*TLVs*/
+ } UNI_CMD_ECC_OP_T, *P_UNI_CMD_ECC_OP_T;
+ 
+ /* ECC Operation Parameters (Tag0) */
+@@ -1618,7 +1618,7 @@
+     UINT8 ucDataLength;    /* it means the length of total */
+     UINT8 ucDataType;      /* 0: only scalar(DG mode in HW), 1: scalar and point(x and y)(DQ mode in HW) */
+     UINT8 ucEccCmdId;      /* Ecc cmd queue idx */
+-    UINT8 aucBuffer[0];    /* key data */
++    UINT8 aucBuffer[];    /* key data */
+ } UNI_CMD_ECC_OP_CAL_T, *P_UNI_CMD_ECC_OP_CAL_T;
+ /* ==================== UNI_CMD_ID_ECC_OPER End ==================== */
+ 
+@@ -1628,7 +1628,7 @@
+     /*fixed field*/
+     UINT8 aucPadding[4];
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_RDD_T, *P_UNI_CMD_RDD_T;
+ 
+ /* RDD on off command (Tag0) */
+@@ -1665,7 +1665,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_MIB_T, *P_UNI_CMD_MIB_T;
+ 
+ /* MIB Config Parameters (Tag0) */
+@@ -1692,7 +1692,7 @@
+     UINT8 ucReserved[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 							*   TAG                        | ID  | structure
+ 							*   ---------------------------|-----|--------------
+ 							*   UNI_CMD_SNIFFER_MODE_ENABLE | 0x00 | UNI_CMD_SNIFFER_MODE_ENABLE_T
+@@ -1733,7 +1733,7 @@
+     UINT8 ucReserved[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_SCS_T, *P_UNI_CMD_SCS_T;
+ 
+ /* SCS Tag value */
+@@ -1824,7 +1824,7 @@
+ 	UINT8 aucPadding[3];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0]; /**< the TLVs included in this field:
++	UINT8 aucTlvBuffer[]; /**< the TLVs included in this field:
+ 							*
+ 							*   TAG                              | ID  | structure
+ 							*   -------------                    | ----| -------------
+@@ -1861,7 +1861,7 @@
+ 	UINT8 aucPadding[3];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0]; /**< the TLVs included in this field:
++	UINT8 aucTlvBuffer[]; /**< the TLVs included in this field:
+ 							*
+ 							*   TAG                     | ID  | structure
+ 							*   -------------           | ----| -------------
+@@ -2081,7 +2081,7 @@
+ 	/*Fixed Fields*/
+ 	UINT8 au1Padding[4];
+ 	/*TLV*/
+-	UINT8 au1TlvBuffer[0];
++	UINT8 au1TlvBuffer[];
+ };
+ 
+ struct GNU_PACKED UNI_MURU_MANUAL_CONFIG_T {
+@@ -2254,7 +2254,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_PP_T, *P_UNI_CMD_PP_T;
+ 
+ typedef enum _UNI_CMD_ID_PP_TAG_T {
+@@ -2284,7 +2284,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_CMD_TPC_T, *P_UNI_CMD_TPC_T;
+ 
+ typedef enum _UNI_CMD_ID_TPC_TAG_T {
+@@ -2452,7 +2452,7 @@
+ 	UINT8 aucReserved[4];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0]; /**<the TLVs includer in this field:
++	UINT8 aucTlvBuffer[]; /**<the TLVs includer in this field:
+ 		*
+ 		*  TAG                                       | ID   | structure
+ 		*  ------------------------------------      | -----| -------------
+@@ -2969,7 +2969,7 @@
+ 	UINT8 aucPadding[3];
+ 	UINT32 u4StaInUseBitmap[32];
+ 
+-	UNI_CMD_RED_TX_RPT_T arTxRpt[0];
++	UNI_CMD_RED_TX_RPT_T arTxRpt[];
+ } UNI_CMD_VOW_RED_TX_RPT_T, *P_UNI_CMD_VOW_RED_TX_RPT_T;
+ 
+ typedef struct GNU_PACKED _UNI_CMD_VOW_PARAM_T {
+diff -uNr a/mt_wifi/include/hw_ctrl/cmm_fw_uni_event.h b/mt_wifi/include/hw_ctrl/cmm_fw_uni_event.h
+--- a/mt_wifi/include/hw_ctrl/cmm_fw_uni_event.h	2023-12-29 13:53:10.000000000 +0800
++++ b/mt_wifi/include/hw_ctrl/cmm_fw_uni_event.h	2026-04-02 16:04:06.541907300 +0800
+@@ -83,7 +83,7 @@
+     UINT8 ucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 						*
+ 						*   TAG                              | ID  | structure
+ 						*   ---------------------------------|-----|--------------
+@@ -113,7 +113,7 @@
+     UINT16 u2Length;
+     UINT8 ucMsgFmt;
+     UINT8 ucReserved[3];
+-    UINT8 acMsg[0];
++    UINT8 acMsg[];
+ } UNI_EVENT_FW_LOG_FORMAT_T, *P_UNI_EVENT_FW_LOG_FORMAT_T;
+ 
+ typedef struct GNU_PACKED _UNI_EVENT_ACCESS_REG_T {
+@@ -121,7 +121,7 @@
+     UINT8 ucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 							*
+ 							*   TAG                              | ID  | structure
+ 							*   ---------------------------------|-----|---------------------------------
+@@ -161,7 +161,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_SMESH_INFO_T, *P_UNI_EVENT_SMESH_INFO_T;
+ 
+ typedef struct GNU_PACKED _UNI_EVENT_IE_COUNTDOWNT_T {
+@@ -170,7 +170,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_IE_COUNTDOWN_T, *P_UNI_EVENT_IE_COUNTDOWN_T;
+ 
+ /* IE countdown event Tag */
+@@ -204,7 +204,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0]; /**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[]; /**< the TLVs included in this field:
+ 							*
+ 							*   TAG                             | ID  | structure
+ 							*   -------------                   | ----| -------------
+@@ -223,7 +223,7 @@
+     UINT16 u2Tag;                   /* Tag = 0x00 */
+     UINT16 u2Length;
+ 
+-    UINT8 aucBuffer[0];
++    UINT8 aucBuffer[];
+ } UNI_EVENT_ASSERT_CONTENT_T, *P_UNI_EVENT_ASSERT_CONTENT_T;
+ 
+ 
+@@ -233,7 +233,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_BEACON_TIMEOUT_T, *P_UNI_EVENT_BEACON_TIMEOUT_T;
+ 
+ typedef enum _UNI_EVENT_BEACON_TIMEOUT_TAG_T {
+@@ -270,7 +270,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0]; /**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[]; /**< the TLVs included in this field:
+ 							*
+ 							*   TAG                             | ID  | structure
+ 							*   -------------                   | ----| -------------
+@@ -301,7 +301,7 @@
+     UINT8 aucPadding[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_ECC_CAL_T, *P_UNI_EVENT_ECC_CAL_T;
+ 
+ /* ECC operation event tags */
+@@ -328,7 +328,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++    UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 						*
+ 						*   TAG                          | ID  | structure
+ 						*   -------------                | ----| -------------
+@@ -388,7 +388,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_MAC_IFNO_T, *P_UNI_EVENT_MAC_IFNO_T;
+ 
+ /* Mac info event Tag */
+@@ -414,7 +414,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_TXCMD_CTRL_T, *P_UNI_EVENT_TXCMD_CTRL_T;
+ 
+ /* TXCMD ctrl cmd tags */
+@@ -439,7 +439,7 @@
+     UINT8  ucUserIndex;
+     UINT8  ucDlUlidx;
+ 
+-    UINT8  aucBuffer[0];
++    UINT8  aucBuffer[];
+ } UNI_EVENT_GET_TXCMD_DBG_CMD_CTRL_T, *P_UNI_EVENT_GET_TXCMD_DBG_CMD_CTRL_T;
+ 
+ typedef struct GNU_PACKED _UNI_EVENT_EDCCA_T {
+@@ -448,7 +448,7 @@
+ 	UINT8 aucPadding[3];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0];/**< the TLVs included in this field:
++	UINT8 aucTlvBuffer[];/**< the TLVs included in this field:
+ 						*   TAG                             | ID  | structure
+ 						*   -------------                   | ----| -------------
+ 						*   UNI_EVENT_EDCCA_ENABLE          | 0x0 | UNI_EVENT_EDCCA_ENABLE_T
+@@ -490,7 +490,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_MIB_T, *P_UNI_EVENT_MIB_T;
+ 
+ typedef struct GNU_PACKED _UNI_EVENT_MIB_DATA_T {
+@@ -507,7 +507,7 @@
+     UINT8 aucPadding[3];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_SCS_T, *P_UNI_EVENT_SCS_T;
+ 
+ /** SCS EVENT TLV List */
+@@ -539,7 +539,7 @@
+     UINT8 aucReserved[4];
+ 
+     /* tlv */
+-    UINT8 aucTlvBuffer[0];
++    UINT8 aucTlvBuffer[];
+ } UNI_EVENT_TPC_T, *P_UNI_EVENT_TPC_T;
+ 
+ typedef struct GNU_PACKED _UNI_TPC_DL_MAN_MODE_PARAM_ELEMENT {
+@@ -597,7 +597,7 @@
+ 	UINT8 aucReserved[4];
+ 
+ 	/* tlv */
+-	UINT8 aucTlvBuffer[0]; /**<the TLVs includer in this field:
++	UINT8 aucTlvBuffer[]; /**<the TLVs includer in this field:
+ 		*
+ 		*  TAG                                         | ID    | structure
+ 		*  ------------------------------------        | ----- | -------------
+diff -uNr a/mt_wifi/include/mac/mac_mt/dmac/mt_dmac.h b/mt_wifi/include/mac/mac_mt/dmac/mt_dmac.h
+--- a/mt_wifi/include/mac/mac_mt/dmac/mt_dmac.h	2023-12-29 13:53:09.000000000 +0800
++++ b/mt_wifi/include/mac/mac_mt/dmac/mt_dmac.h	2026-04-02 16:04:06.543910300 +0800
+@@ -1369,7 +1369,7 @@
+ ******************************************************************************/
+ typedef struct GNU_PACKED _TXS_FRM_STRUC {
+ 	struct _RMAC_RXD_0_TXS TxSD0;
+-	TXS_STRUC txs_info[0];
++	TXS_STRUC txs_info[];
+ } TXS_FRM_STRUC;
+ 
+ 
+@@ -1713,7 +1713,7 @@
+ /* +++UNIFIED_TXD_RXD */
+ typedef struct GNU_PACKED _RXV_FRM_STRUC {
+ 	struct _RMAC_RXD_0_TXRXV RxVD0;
+-	RXV_STRUC RxVInfo[0];
++	RXV_STRUC RxVInfo[];
+ } RXV_FRM_STRUC, *PRXV_FRM_STRUC;
+ /* ---UNIFIED_TXD_RXD */
+ 
+diff -uNr a/mt_wifi/include/mac/mac_mt/smac/mt_mac.h b/mt_wifi/include/mac/mac_mt/smac/mt_mac.h
+--- a/mt_wifi/include/mac/mac_mt/smac/mt_mac.h	2023-12-29 13:53:09.000000000 +0800
++++ b/mt_wifi/include/mac/mac_mt/smac/mt_mac.h	2026-04-02 16:04:06.589093000 +0800
+@@ -1321,7 +1321,7 @@
+ ******************************************************************************/
+ typedef struct GNU_PACKED _TXS_FRM_STRUC {
+ 	struct _RMAC_RXD_0_TXS TxSD0;
+-	TXS_STRUC txs_info[0];
++	TXS_STRUC txs_info[];
+ } TXS_FRM_STRUC;
+ 
+ 
+@@ -1600,7 +1600,7 @@
+ /* +++UNIFIED_TXD_RXD */
+ typedef struct GNU_PACKED _RXV_FRM_STRUC {
+ 	struct _RMAC_RXD_0_TXRXV RxVD0;
+-	RXV_STRUC RxVInfo[0];
++	RXV_STRUC RxVInfo[];
+ } RXV_FRM_STRUC, *PRXV_FRM_STRUC;
+ /* ---UNIFIED_TXD_RXD */
+ 
+diff -uNr a/mt_wifi/include/mac/mac_mt/smac/mt_smac.h b/mt_wifi/include/mac/mac_mt/smac/mt_smac.h
+--- a/mt_wifi/include/mac/mac_mt/smac/mt_smac.h	2023-12-29 13:53:09.000000000 +0800
++++ b/mt_wifi/include/mac/mac_mt/smac/mt_smac.h	2026-04-02 16:04:06.604724300 +0800
+@@ -1317,7 +1317,7 @@
+ ******************************************************************************/
+ typedef struct GNU_PACKED _TXS_FRM_STRUC {
+ 	struct _RMAC_RXD_0_TXS TxSD0;
+-	TXS_STRUC txs_info[0];
++	TXS_STRUC txs_info[];
+ } TXS_FRM_STRUC;
+ 
+ 
+@@ -1596,7 +1596,7 @@
+ /* +++UNIFIED_TXD_RXD */
+ typedef struct GNU_PACKED _RXV_FRM_STRUC {
+ 	struct _RMAC_RXD_0_TXRXV RxVD0;
+-	RXV_STRUC RxVInfo[0];
++	RXV_STRUC RxVInfo[];
+ } RXV_FRM_STRUC, *PRXV_FRM_STRUC;
+ /* ---UNIFIED_TXD_RXD */
+ 
+diff -uNr a/mt_wifi/include/mcu/mt_cmd.h b/mt_wifi/include/mcu/mt_cmd.h
+--- a/mt_wifi/include/mcu/mt_cmd.h	2023-12-29 13:53:09.000000000 +0800
++++ b/mt_wifi/include/mcu/mt_cmd.h	2026-04-02 16:04:06.636198000 +0800
+@@ -1484,7 +1484,7 @@
+ 	UINT32 u4Cr4QueryOptionArg0;
+ 	UINT32 u4Cr4QueryOptionArg1;
+ 	UINT32 u4Cr4QueryOptionArg2;
+-	UINT16 u4Cr4QueryList[0];
++	UINT16 u4Cr4QueryList[];
+ } EXT_CMD_CR4_MULTI_QUERY_T, *P_EXT_CMD_CR4_MULTI_QUERY_T;
+ 
+ typedef struct GNU_PACKED _EXT_CMD_CR4_SET_T {
+@@ -1519,7 +1519,7 @@
+ 	UINT32 u4Count;
+ 	UINT8 ucRddIdx;
+ 	UINT8 aucReserve[3];
+-	UINT8 aucBuffer[0];
++	UINT8 aucBuffer[];
+ } EVENT_WIFI_RDD_TEST_T, *PEVENT_WIFI_RDD_TEST_T;
+ 
+ #define WIFI_RADIO_ON 1
+@@ -2305,13 +2305,13 @@
+ typedef struct _EXT_EVENT_RF_TEST_RESULT_T {
+ 	UINT32 u4FuncIndex;
+ 	UINT32 u4PayloadLength;
+-	UINT8  aucEvent[0];
++	UINT8  aucEvent[];
+ } EXT_EVENT_RF_TEST_RESULT_T, *PEXT_EVENT_RF_TEST_RESULT_T;
+ 
+ typedef struct _EXT_EVENT_RF_TEST_DATA_T {
+ 	UINT32 u4CalIndex;
+ 	UINT32 u4CalType;
+-	UINT8  aucData[0];
++	UINT8  aucData[];
+ } EXT_EVENT_RF_TEST_DATA_T, *PEXT_EVENT_RF_TEST_DATA_T;
+ 
+ #define WIFI_RX_DISABLE 1
+@@ -4149,7 +4149,7 @@
+ 	UINT8 pci_num;
+ 	UINT8 pci_slot_id;
+ 	UINT8 card_type;
+-	UINT8 data[0]; /* FW cmd length limit 1.6k bytes*/
++	UINT8 data[]; /* FW cmd length limit 1.6k bytes*/
+ } EXT_EVENT_FW2APCCCI_T, *P_EXT_EVENT_FW2APCCCI_T;
+ 
+ typedef struct _EVENT_LTE_SAFE_CHN_T {
+@@ -5776,7 +5776,7 @@
+ typedef struct GNU_PACKED _EXT_EVENT_ATE_TEST_MODE_T {
+ 	UINT8 ucAteIdx;
+ 	UINT8 aucReserved[3];
+-	UINT8 aucAteResult[0];
++	UINT8 aucAteResult[];
+ } EXT_EVENT_ATE_TEST_MODE_T, *P_EXT_EVENT_ATE_TEST_MODE_T;
+ 
+ typedef struct _GET_FREQ_OFFSET_T {
+@@ -7828,7 +7828,7 @@
+ typedef struct _GET_WF_INTERRUPT_CNT_T {
+ 	UINT8 ucWifiInterruptNum;
+ 	UINT8 aucReserved[3];
+-	UINT32 u4WifiInterruptCounter[0];
++	UINT32 u4WifiInterruptCounter[];
+ } GET_WF_INTERRUPT_CNT_T, *P_WF_INTERRUPT_CNT_T;
+ 
+ typedef union {
+@@ -8156,7 +8156,7 @@
+ 
+ 	/* tlv */
+ 	UINT32 u4TotalTlvNum;
+-	UINT8 aucTlvBuffer[0]; /**< the TLVs included in this field: **/
++	UINT8 aucTlvBuffer[]; /**< the TLVs included in this field: **/
+ 
+ } EXT_CMD_CFG_BASIC_INFO_T, *P_EXT_CMD_CFG_BASIC_INFO_T;
+ 
+@@ -8349,7 +8349,7 @@
+ typedef struct _EXT_EVENT_GET_CR4_MULTI_TX_STATISTICS_T {
+ 	UINT16 number;
+ 	UINT8 reserved[2];
+-	EXT_EVENT_GET_CR4_TX_STATISTICS_T stat_list[0];
++	EXT_EVENT_GET_CR4_TX_STATISTICS_T stat_list[];
+ } EXT_EVENT_GET_CR4_MULTI_TX_STATISTICS_T, *P_EXT_EVENT_GET_CR4_MULTI_TX_STATISTICS_T;
+ 
+ typedef struct GNU_PACKED _EXT_EVENT_CSA_NOTIFY_T {
+@@ -9332,7 +9332,7 @@
+ 	/** dvt parameter's data struct size (Length) */
+ 	UINT32  u4Lth;
+     /** dvt parameter's data struct (Value) */
+-	UINT8   u1cBuffer[0];
++	UINT8   u1cBuffer[];
+ } CMD_SYSDVT_CTRL_EXT_T, *P_CMD_SYSDVT_CTRL_EXT_T;
+ 
+ enum {
+@@ -10773,7 +10773,7 @@
+ 	UINT8 ucDataType; /*0: only scalar(DG mode in HW), 1: scalar and point(x and y)(DQ mode in HW) */
+ 	UINT8 ucEccCmdId;
+ 	UINT8 aucReserved[3];
+-	UINT8 aucBuffer[0]; /*data*/
++	UINT8 aucBuffer[]; /*data*/
+ } CMD_ECC_OP_T, *P_CMD_ECC_OP_T;
+ 
+ #define ECC_CAL_DG_MODE 0 /*provide scalar, the base point is the default generator of group predefinition.*/
+diff -uNr a/mt_wifi/include/phy/rlm_cal_cache.h b/mt_wifi/include/phy/rlm_cal_cache.h
+--- a/mt_wifi/include/phy/rlm_cal_cache.h	2023-12-29 13:53:09.000000000 +0800
++++ b/mt_wifi/include/phy/rlm_cal_cache.h	2026-04-02 16:04:06.667512200 +0800
+@@ -170,7 +170,7 @@
+     UINT8  ucSecBw80;
+     UINT8  ucReserved[3];
+     UINT32 u4Length;
+-    UINT32 au4Data[0];
++    UINT32 au4Data[];
+ } PRE_CAL_INFO_MT7915_T, *P_PRE_CAL_INFO_MT7915_T;
+ #endif /* PRE_CAL_MT7915_SUPPORT */
+ 
+@@ -186,7 +186,7 @@
+     UINT8  ucIndex;
+     UINT8  ucReserved[4];
+     UINT32 u4Length;
+-    UINT32 au4Data[0];
++    UINT32 au4Data[];
+ } PRE_CAL_INFO_MT7986_T, *P_PRE_CAL_INFO_MT7986_T;
+ #endif /* PRE_CAL_MT7986_SUPPORT */
+ 
+@@ -202,7 +202,7 @@
+     UINT8  ucIndex;
+     UINT8  ucReserved[4];
+     UINT32 u4Length;
+-    UINT32 au4Data[0];
++    UINT32 au4Data[];
+ } PRE_CAL_INFO_MT7916_T, *P_PRE_CAL_INFO_MT7916_T;
+ #endif /* PRE_CAL_MT7916_SUPPORT */
+ 
+@@ -218,7 +218,7 @@
+     UINT8  ucIndex;
+     UINT8  ucReserved[4];
+     UINT32 u4Length;
+-    UINT32 au4Data[0];
++    UINT32 au4Data[];
+ } PRE_CAL_INFO_MT7981_T, *P_PRE_CAL_INFO_MT7981_T;
+ #endif /* PRE_CAL_MT7981_SUPPORT */
+ 
+diff -uNr a/mt_wifi/include/protocol/twt.h b/mt_wifi/include/protocol/twt.h
+--- a/mt_wifi/include/protocol/twt.h	2023-12-29 13:53:10.000000000 +0800
++++ b/mt_wifi/include/protocol/twt.h	2026-04-02 16:04:06.667512200 +0800
+@@ -208,7 +208,7 @@
+ 	UINT8 elem_id;
+ 	UINT8 len;
+ 	UINT8 control;
+-	UINT8 oct[0];
++	UINT8 oct[];
+ };
+ 
+ struct GNU_PACKED frame_itwt_setup {
+@@ -227,7 +227,7 @@
+ 	UINT8 elem_id;
+ 	UINT8 len;
+ 	UINT8 control;
+-	struct btwt_para_set btwt_para[0];
++	struct btwt_para_set btwt_para[];
+ };
+ 
+ /* TWT teardown frame action filed format */
+@@ -620,7 +620,7 @@
+ 	UINT8 ucCategory;	/* Category */
+ 	UINT8 ucAction;	/* Action Value */
+ 	UINT8 ucNextTWTCtrl;
+-	UINT8 aucNextTWT[0];
++	UINT8 aucNextTWT[];
+ };
+ 
+ struct GNU_PACKED msg_twt_fsm_t {
+diff -uNr a/mt_wifi/include/rate_ctrl/ra_ctrl.h b/mt_wifi/include/rate_ctrl/ra_ctrl.h
+--- a/mt_wifi/include/rate_ctrl/ra_ctrl.h	2023-12-29 13:53:10.000000000 +0800
++++ b/mt_wifi/include/rate_ctrl/ra_ctrl.h	2026-04-02 16:04:06.667512200 +0800
+@@ -783,7 +783,7 @@
+ 	UINT_8 ucField;
+ 	UINT_8 aucReserve;
+ 	UINT_16 u2Num;
+-	UINT_8 aucTxStatisticResult[0];
++	UINT_8 aucTxStatisticResult[];
+ } EXT_EVENT_TX_STATISTIC_RESULT_HEADER_T, *P_EXT_EVENT_TX_STATISTIC_RESULT_HEADER_T;
+ 
+ typedef struct _EXT_EVENT_TX_STATISTIC_BAND_RESULT_T {
+diff -uNr a/wlan_service/glue/osal/include/net_adaption.h b/wlan_service/glue/osal/include/net_adaption.h
+--- a/wlan_service/glue/osal/include/net_adaption.h	2023-12-29 14:38:01.000000000 +0800
++++ b/wlan_service/glue/osal/include/net_adaption.h	2026-04-02 16:04:06.763316200 +0800
+@@ -425,7 +425,7 @@
+ 	u_int16 frag:4;
+ 	u_int16 sequence:12;
+ #endif				/* !RT_BIG_ENDIAN */
+-	u_char octet[0];
++	u_char octet[];
+ };
+ 
+ /* Service fw related information */
+diff -uNr a/wlan_service/include/agent.h b/wlan_service/include/agent.h
+--- a/wlan_service/include/agent.h	2023-12-29 14:38:01.000000000 +0800
++++ b/wlan_service/include/agent.h	2026-04-02 16:04:06.763316200 +0800
+@@ -128,7 +128,7 @@
+ 	u_char addr1[SERV_MAC_ADDR_LEN];
+ 	u_char addr2[SERV_MAC_ADDR_LEN];
+ 	u_char addr3[SERV_MAC_ADDR_LEN];
+-	u_char payload[0];
++	u_char payload[];
+ };
+ 
+ struct GNU_PACKED hqa_tx {

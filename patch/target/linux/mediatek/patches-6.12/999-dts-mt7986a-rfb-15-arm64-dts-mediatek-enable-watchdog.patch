@@ -1,0 +1,13 @@
+--- a/arch/arm64/boot/dts/mediatek/mt7986a-rfb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt7986a-rfb.dts
+@@ -297,6 +297,10 @@
+ 	status = "okay";
+ };
+ 
++&watchdog {
++	status = "okay";
++};
++
+ &wifi {
+ 	status = "okay";
+ 	pinctrl-names = "default", "dbdc";
