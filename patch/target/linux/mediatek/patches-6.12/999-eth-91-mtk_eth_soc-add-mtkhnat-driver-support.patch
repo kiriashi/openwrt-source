@@ -6,8 +6,8 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
 ---
  drivers/net/ethernet/mediatek/Kconfig       | 24 +++++++++++++
  drivers/net/ethernet/mediatek/Makefile      |  1 +
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 46 +++++++++++++++++++++++++
- 3 files changed, 71 insertions(+)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 39 +++++++++++++++++++++
+ 3 files changed, 64 insertions(+)
 
 --- a/drivers/net/ethernet/mediatek/Kconfig
 +++ b/drivers/net/ethernet/mediatek/Kconfig
@@ -50,24 +50,18 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  obj-$(CONFIG_NET_AIROHA) += airoha_eth.o
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -39,6 +39,16 @@
+@@ -39,6 +39,10 @@
  #include "mtk_eth_dbg.h"
  #include "mtk_wed.h"
  
 +#if defined(CONFIG_NET_MEDIATEK_HNAT) || defined(CONFIG_NET_MEDIATEK_HNAT_MODULE)
 +#include "mtk_hnat/nf_hnat_mtk.h"
-+
-+static void mtk_hnat_skb_destructor(struct sk_buff *skb)
-+{
-+	if (skb_headroom(skb) >= FOE_INFO_LEN)
-+		memset(skb_hnat_info(skb), 0, FOE_INFO_LEN);
-+}
 +#endif
 +
  static int mtk_msg_level = -1;
  module_param_named(msg_level, mtk_msg_level, int, 0);
  MODULE_PARM_DESC(msg_level, "Message level (-1=defaults,0=none,...,16=all)");
-@@ -2938,6 +2948,32 @@ static int mtk_poll_rx(struct napi_struc
+@@ -2938,6 +2942,31 @@ static int mtk_poll_rx(struct napi_struc
  
  			skb_reserve(skb, NET_SKB_PAD + NET_IP_ALIGN);
  			skb_put(skb, pktlen);
@@ -85,7 +79,6 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
 +			skb_hnat_set_tops(skb, 0);
 +			skb_hnat_set_is_decap(skb, 0);
 +			skb_hnat_set_is_decrypt(skb, (skb_hnat_cdrt(skb) ? 1 : 0));
-+			skb->destructor = mtk_hnat_skb_destructor;
 +
 +			if (skb_hnat_reason(skb) == HIT_BIND_FORCE_TO_CPU) {
 +				trace_printk("[%s] reason=0x%x(force to CPU) from WAN to Ext\n",
@@ -100,7 +93,7 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  		}
  
  		skb->dev = netdev;
-@@ -2980,8 +3016,10 @@ static int mtk_poll_rx(struct napi_struc
+@@ -2980,8 +3009,10 @@ static int mtk_poll_rx(struct napi_struc
  				skb_dst_set_noref(skb, &eth->dsa_meta[port]->dst);
  		}
  
@@ -111,7 +104,7 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  
  		if (eth->hwlro && eth->debugfs->hwlro_stats.ebl &&
  		    IS_HW_LRO_RING(ring->ring_no)) {
-@@ -4668,6 +4706,7 @@ static int mtk_open(struct net_device *d
+@@ -4668,6 +4699,7 @@ static int mtk_open(struct net_device *d
  		if (err)
  			return err;
  
@@ -119,7 +112,7 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  		for (i = 0; i < ARRAY_SIZE(eth->ppe); i++)
  			mtk_ppe_start(eth->ppe[i]);
  
-@@ -4675,6 +4714,7 @@ static int mtk_open(struct net_device *d
+@@ -4675,6 +4707,7 @@ static int mtk_open(struct net_device *d
  		if (err)
  			netdev_err(dev, "%s: could not start ppe roaming work: %d\n",
  				   __func__, err);
@@ -127,7 +120,7 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  
  		for (i = 0; i < MTK_MAX_DEVS; i++) {
  			if (!eth->netdev[i])
-@@ -4848,10 +4888,12 @@ static int mtk_stop(struct net_device *d
+@@ -4848,10 +4881,12 @@ static int mtk_stop(struct net_device *d
  
  	mtk_dma_free(eth);
  
@@ -140,7 +133,7 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  
  	return 0;
  }
-@@ -7365,6 +7407,7 @@ static int mtk_probe(struct platform_dev
+@@ -7365,6 +7400,7 @@ static int mtk_probe(struct platform_dev
  		};
  	}
  
@@ -148,7 +141,7 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  	if (eth->soc->offload_version) {
  		u8 ppe_num = eth->soc->ppe_num;
  
-@@ -7389,6 +7432,7 @@ static int mtk_probe(struct platform_dev
+@@ -7389,6 +7425,7 @@ static int mtk_probe(struct platform_dev
  		if (err)
  			goto err_deinit_ppe;
  	}
@@ -156,7 +149,7 @@ Subject: [PATCH] net: ethernet: mtk_eth_soc: add mtkhnat driver support
  
  	mtk_eth_debugfs_init(eth);
  
-@@ -7446,7 +7490,9 @@ err_unreg_netdev:
+@@ -7446,7 +7483,9 @@ err_unreg_netdev:
  	free_netdev(eth->dummy_dev);
  err_deinit_ppe:
  	mtk_napi_del(eth);

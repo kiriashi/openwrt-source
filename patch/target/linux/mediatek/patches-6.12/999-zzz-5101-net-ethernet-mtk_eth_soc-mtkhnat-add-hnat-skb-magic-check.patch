@@ -1,6 +1,6 @@
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -2263,6 +2263,13 @@ next_frag:
+@@ -2257,6 +2257,13 @@ next_frag:
  	state.tx_buf->type = MTK_TYPE_SKB;
  	state.tx_buf->data = skb;
  
