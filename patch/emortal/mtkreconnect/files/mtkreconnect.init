@@ -1,0 +1,52 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+. /lib/functions.sh
+
+check_sta() {
+	local mode disabled
+
+	config_get mode "$1" mode
+	config_get_bool disabled "$1" disabled 0
+	[ "$mode" = "sta" ] && [ "$disabled" = "0" ] && found=1
+}
+
+start_service() {
+	local found=0
+
+	config_load wireless
+	config_foreach check_sta wifi-iface
+	[ "$found" = 0 ] && return 0
+
+	procd_open_instance
+	procd_set_param command /usr/sbin/mtkreconnect
+	procd_set_param reload_signal SIGHUP
+	procd_set_param respawn
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+	procd_close_instance
+}
+
+service_triggers() {
+	procd_add_reload_trigger "wireless"
+}
+
+reload_service() {
+	local found=0
+
+	config_load wireless
+	config_foreach check_sta wifi-iface
+
+	if procd_running mtkreconnect; then
+		if [ "$found" = "0" ]; then
+			# 所有 STA 接口均已 disabled，停止守护进程
+			stop
+		else
+			procd_send_signal mtkreconnect
+		fi
+	else
+		[ "$found" = "1" ] && start
+	fi
+}

@@ -1,0 +1,389 @@
+diff --git a/mt_wifi/embedded/common/fp_fair_qm.c b/mt_wifi/embedded/common/fp_fair_qm.c
+index 5d85d2a..0aa81a1 100644
+--- a/mt_wifi/embedded/common/fp_fair_qm.c
++++ b/mt_wifi/embedded/common/fp_fair_qm.c
+@@ -266,6 +266,18 @@ VOID fp_fair_tx_pkt_deq_func(RTMP_ADAPTER *pAd, UINT8 idx)
+ 	INT32 max_cnt = GET_DATA_TX_RING_SIZE(cap);
+ 	UINT8 num_of_tx_ring = hif_get_tx_res_num(pAd->hdev_ctrl);
+ 	UINT16 wtbl_max_num = WTBL_MAX_NUM(pAd);
++#ifdef RTMP_MAC_PCI
++	UINT8 band_idx = 0;
++	struct token_tx_pkt_queue *que = NULL;
++	struct _PCI_HIF_T *hif = NULL;
++	PKT_TOKEN_CB *cb = NULL;
++#endif
++
++#ifdef RTMP_MAC_PCI
++	/* Loop-invariant: the token control block does not change during a run. */
++	hif = hc_get_hif_ctrl(pAd->hdev_ctrl);
++	cb = hif ? hif->PktTokenCb : NULL;
++#endif
+ 
+ 	deq_info.target_wcid = WCID_ALL;
+ 	deq_info.target_que = WMM_NUM_OF_AC;
+@@ -307,9 +319,53 @@ VOID fp_fair_tx_pkt_deq_func(RTMP_ADAPTER *pAd, UINT8 idx)
+ 		if (!wdev)
+ 			continue;
+ 
++#ifdef RTMP_MAC_PCI
++		que = NULL;
++		if (cb) {
++			band_idx = HcGetBandByWdev(wdev);
++			que = token_tx_get_queue_by_band(cb, band_idx);
++		}
++#endif
++
+ 		wdev_ops = wdev->wdev_ops;
+ 		pTxBlk->resource_idx = hif_get_resource_idx(pAd->hdev_ctrl, wdev, 0, 0);
+-		if (arch_ops->check_hw_resource(pAd, wdev, pTxBlk->resource_idx)) {
++		ret = arch_ops->check_hw_resource(pAd, wdev, pTxBlk->resource_idx);
++		if (ret) {
++#ifdef RTMP_MAC_PCI
++			/*
++			 * Same stall guard as fp_tx_pkt_deq_func(): a per-band token
++			 * limit hit arms no TX_TOKEN_LOW state, so the MAC TX-free
++			 * handler gated on token_tx_get_state() never wakes the fair
++			 * dequeue task and the queue could stall.  Record a pending
++			 * request instead: token_tx_deq() reschedules this task once
++			 * this band's token usage drops back below its high watermark.
++			 *
++			 * Arming is restricted to the ERROR_NO_TOKEN cause (per-band or
++			 * global token shortage).  A ring-low (ERROR_NO_RING) or other
++			 * non-token blocker sets no per-band state, so arming+waking
++			 * there would make the wake filter pass on every run and
++			 * self-schedule the high-priority tasklet in an unthrottled
++			 * loop for as long as the blocker persists; ring recovery is
++			 * event-driven elsewhere and global-token-low recovery is owned
++			 * by the legacy TX-free wake machinery, so only the per-band
++			 * case needs this channel.  The bit is not cleared on the
++			 * success path -- it is consumed only by
++			 * token_tx_wake_deq_if_recovered(), which clears it exactly
++			 * when it schedules; a clear-without-schedule could lose the
++			 * wakeup of a concurrent tasklet.  The immediate
++			 * token_tx_wake_deq_if_recovered() right after arming closes
++			 * the lost-wakeup window against a concurrent token free (same
++			 * protocol as fp_tx_pkt_deq_func()).  que is only populated
++			 * when the token control block exists (CUT_THROUGH builds), so
++			 * guard the bit ops against a NULL queue.
++			 */
++			if (ret == ERROR_NO_TOKEN) {
++				if (que) {
++					token_tx_set_deq_pending(que, band_idx);
++					token_tx_wake_deq_if_recovered(pAd, que, band_idx);
++				}
++			}
++#endif
+ 			if (data_turn == FALSE)
+ 				break;
+ 			if (IS_TR_WCID_VALID(pAd, deq_info.target_wcid))
+diff --git a/mt_wifi/embedded/common/fp_qm.c b/mt_wifi/embedded/common/fp_qm.c
+index 3cd71c4..7532f4a 100644
+--- a/mt_wifi/embedded/common/fp_qm.c
++++ b/mt_wifi/embedded/common/fp_qm.c
+@@ -159,7 +159,15 @@ static INT32 fp_check_tx_resource(RTMP_ADAPTER *pAd,
+ 	}
+ #endif
+ 
+-	if (ret)
++	/*
++	 * Preserve the token cause for the caller: a per-band or global token
++	 * shortage surfaces upstream as ERROR_NO_TOKEN so fp_tx_pkt_deq_func()
++	 * can arm the recovery wake for it, while everything else (ring-low and
++	 * ring-all) collapses to the generic ERROR_NO_TX_RESOURCE, which breaks
++	 * the dequeue loop without arming.  fp_check_tx_resource() has exactly
++	 * one caller (fp_tx_pkt_deq_func()), so this is safe.
++	 */
++	if (ret != NDIS_STATUS_SUCCESS && ret != ERROR_NO_TOKEN)
+ 		ret = ERROR_NO_TX_RESOURCE;
+ 
+ 	return ret;
+@@ -404,11 +412,23 @@ VOID fp_tx_pkt_deq_func(RTMP_ADAPTER *pAd, UINT8 idx)
+ #else /* SW_CONNECT_SUPPORT */
+ 	UINT16 wtbl_max_num = WTBL_MAX_NUM(pAd);
+ #endif /* !SW_CONNECT_SUPPORT */
++#ifdef RTMP_MAC_PCI
++	UINT8 band_idx = 0;
++	struct token_tx_pkt_queue *que = NULL;
++	struct _PCI_HIF_T *hif = NULL;
++	PKT_TOKEN_CB *cb = NULL;
++#endif
+ 
+ 	if (RTMP_TEST_FLAG(pAd, TX_FLAG_STOP_DEQUEUE)) {
+ 		return;
+ 	}
+ 
++#ifdef RTMP_MAC_PCI
++	/* Loop-invariant: the token control block does not change during a run. */
++	hif = hc_get_hif_ctrl(pAd->hdev_ctrl);
++	cb = hif ? hif->PktTokenCb : NULL;
++#endif
++
+ 	fp_init_post_que(pAd, idx);
+ 
+ #ifdef CONFIG_TX_DELAY
+@@ -437,9 +457,61 @@ VOID fp_tx_pkt_deq_func(RTMP_ADAPTER *pAd, UINT8 idx)
+ 
+ 			wdev_ops = wdev->wdev_ops;
+ 			tx_blk->resource_idx = hif_get_resource_idx(pAd->hdev_ctrl, wdev, 0, 0);
++#ifdef RTMP_MAC_PCI
++			que = NULL;
++			if (cb) {
++				band_idx = HcGetBandByWdev(wdev);
++				que = token_tx_get_queue_by_band(cb, band_idx);
++			}
++#endif
+ 
+ 			ret = fp_check_tx_resource(pAd, wdev, tx_blk->resource_idx);
+ 
++			if (ret == ERROR_NO_TOKEN) {
++#ifdef RTMP_MAC_PCI
++				/*
++				 * Per-band token-limit exhaustion arms no TX_TOKEN_LOW state,
++				 * hence the MAC TX-free handler gated on token_tx_get_state()
++				 * never wakes the dequeue task and the queue could stall.
++				 * Record a pending request instead: token_tx_deq() reschedules
++				 * the dequeue once this band's token usage drops back below its
++				 * high watermark.
++				 *
++				 * Arming is intentionally restricted to the ERROR_NO_TOKEN
++				 * cause: a ring-low (ERROR_NO_RING) or other non-token blocker
++				 * sets no per-band state, so arming+waking there would make the
++				 * wake filter pass on every run and self-schedule the
++				 * high-priority tasklet in an unthrottled loop for as long as
++				 * the blocker persists.  Ring recovery is already event-driven
++				 * (pci_tx_dma_done_handle / flow-control re-scheduling), and
++				 * global-token-low recovery is owned by the legacy TX-free wake
++				 * machinery, so only the per-band case needs this channel.
++				 *
++				 * The pending bit is NOT cleared on the success path: it is
++				 * consumed only by token_tx_wake_deq_if_recovered(), which
++				 * clears it exactly when it schedules, and a clear-without-
++				 * schedule on the success path could consume a bit a concurrent
++				 * tasklet is about to rely on (lost wakeup).  Leaving it set
++				 * until recovery is correct and self-cleaning.  A spurious
++				 * arming (token recovered between the failed check and the
++				 * set_bit) costs at most one extra tasklet schedule.
++				 *
++				 * token_tx_wake_deq_if_recovered() is called again right here
++				 * to close the lost-wakeup window: if a concurrent TX-done
++				 * already dropped the usage below the watermark between the
++				 * failed check and this arming, this side performs the
++				 * clear+schedule itself instead of waiting on a future free.
++				 * que is only populated when the token control block exists
++				 * (CUT_THROUGH builds), so guard the bit ops against NULL.
++				 */
++				if (que) {
++					token_tx_set_deq_pending(que, band_idx);
++					token_tx_wake_deq_if_recovered(pAd, que, band_idx);
++				}
++#endif
++				break;
++			}
++
+ 			if (ret == ERROR_NO_TX_RESOURCE)
+ 				break;
+ 
+diff --git a/mt_wifi/embedded/common/token.c b/mt_wifi/embedded/common/token.c
+index 710a7a0..b9aa2ce 100644
+--- a/mt_wifi/embedded/common/token.c
++++ b/mt_wifi/embedded/common/token.c
+@@ -148,6 +148,7 @@ static INT token_tx_two_queues_init(
+ 		que->high_water_mark_per_band[qidx] = que->pkt_tkid_cnt;
+ 		token_tx_set_hwmark(que, token_tx_get_lwmark(que) + 10);
+ 		clear_bit(TX_TOKEN_LOW, &que->token_state);
++		que->tx_deq_pending = 0;
+ 
+ 		for (idx = 0; idx < TX_FREE_NOTIFY_DEEP_STAT_SIZE; idx++) {
+ 			que->deep_stat[idx].boundary = tx_free_notify_record_boundary[idx];
+@@ -255,6 +256,7 @@ static INT token_tx_queue_init(
+ 
+ 		token_tx_set_hwmark(que, token_tx_get_lwmark(que) + 10);
+ 		clear_bit(TX_TOKEN_LOW, &que->token_state);
++		que->tx_deq_pending = 0;
+ 
+ 		for (idx = 0; idx < TX_FREE_NOTIFY_DEEP_STAT_SIZE; idx++) {
+ 			que->deep_stat[idx].boundary = tx_free_notify_record_boundary[idx];
+@@ -281,6 +283,57 @@ static INT token_tx_queue_init(
+ 	return NDIS_STATUS_SUCCESS;
+ }
+ 
++/*
++ * Wake the TX dequeue task for one band once its per-band token usage has
++ * recovered.  Shared by the token-free path (token_tx_deq()) and the fp
++ * dequeue arm path (fp_tx_pkt_deq_func()/fp_fair_tx_pkt_deq_func()): whoever
++ * observes "pending set && band usage <= high watermark" performs the
++ * clear+schedule, which closes the lost-wakeup window between the dequeue's
++ * set_bit() and a concurrent TX-done's test_bit() -- at least one of the two
++ * sides always sees the recovery.
++ *
++ * The !token_tx_get_state() filter intentionally excludes the global-token-low
++ * blocking source (TX_TOKEN_LOW), which the legacy TX-free wake machinery
++ * already handles with its own hysteresis; this channel fires only for the
++ * per-band recovery it was introduced to cover.  schedule_task() is a tasklet
++ * schedule and does not sleep, so this may run in IRQ/BH context (the
++ * token_tx_deq() caller already holds que->deq_lock there, matching the
++ * existing pattern).
++ *
++ * Memory-ordering: on weakly-ordered cores (ARM64/MT7986) the two-sided
++ * arm/recheck protocol needs a happens-before edge between each side's
++ * state change (arm side's set_bit, free side's atomic_dec) and its
++ * subsequent checks.  The smp_mb() below orders the caller's preceding
++ * state change against the pending test and the usage reads, closing the
++ * Dekker-style window where both sides could otherwise observe the stale
++ * pre-change state and skip the wake.  The arm side calls this without any
++ * lock (taking que->deq_lock there would invert the lock order against
++ * tr_entry->txq_lock in the FAIR data phase), so the barrier is the whole
++ * synchronization; the free side additionally serializes under que->deq_lock.
++ */
++VOID token_tx_wake_deq_if_recovered(
++	RTMP_ADAPTER *pAd, struct token_tx_pkt_queue *que, UINT32 band_idx)
++{
++	struct tm_ops *tm_ops = pAd->tm_qm_ops;
++	RTMP_CHIP_CAP *cap = hc_get_chip_cap(pAd->hdev_ctrl);
++
++	/* Defensive: the real band domain is TOKEN_DEQ_PENDING_NBAND bands; the
++	 * per-band counter arrays are [TOKEN_DEQ_PENDING_NBAND]-sized. */
++	if (band_idx >= TOKEN_DEQ_PENDING_NBAND)
++		return;
++
++	smp_mb();
++
++	if (token_tx_test_deq_pending(que, band_idx) &&
++	    !token_tx_get_state(que) &&
++	    (token_tx_get_used_cnt_per_band(que, band_idx)
++	     <= token_tx_get_hwmark_per_band(que, band_idx))) {
++		token_tx_clear_deq_pending(que, band_idx);
++		tm_ops->schedule_task(pAd, TX_DEQ_TASK,
++			cap->multi_token_ques_per_band ? band_idx : 0);
++	}
++}
++
+ PNDIS_PACKET token_tx_deq(
+ 	RTMP_ADAPTER *pAd,
+ 	struct token_tx_pkt_queue *que,
+@@ -347,6 +400,20 @@ PNDIS_PACKET token_tx_deq(
+ 					atomic_dec(&que->used_token_per_band[band_idx]);
+ 				else
+ 					MTWF_DBG(pAd, DBG_CAT_TOKEN, TOKEN_INFO, DBG_LVL_ERROR, "%s(): enq cnt error, token ID(%d)\n", __func__, token);
++
++				/*
++				 * Per-band token-limit exhaustion (mt_ct_check_hw_resource())
++				 * arms no TX_TOKEN_LOW state, so a MAC TX-free handler gated on
++				 * token_tx_get_state() would never wake the dequeue task and the
++				 * tx queue could stall.  If the dequeue recorded a pending request
++				 * for this band, reschedule it once the band token usage dropped
++				 * back below its high watermark.  Event-driven: the dequeue task
++				 * itself never reschedules while the resource condition is
++				 * unchanged.  The recovery check also runs on the arm side (see
++				 * token_tx_wake_deq_if_recovered()), closing the lost-wakeup
++				 * window between arm and a concurrent token free.
++				 */
++				token_tx_wake_deq_if_recovered(pAd, que, band_idx);
+ 			} else {
+ 				MTWF_DBG(pAd, DBG_CAT_TOKEN, TOKEN_INFO, DBG_LVL_ERROR,
+                                          "%s(): Invalid token ID(%d)\n", __func__, token);
+@@ -521,6 +588,10 @@ INT token_tx_setting(RTMP_ADAPTER *pAd, UINT8 q_idx, INT32 option,
+ 
+ inline struct token_tx_pkt_queue *token_tx_get_queue_by_band(PKT_TOKEN_CB *cb, UINT32 band_idx)
+ {
++	/* cb->que[] holds exactly 2 entries; keep a stray band index safe. */
++	if (band_idx >= 2)
++		return &cb->que[0];
++
+ 	if (cb->que_nums != 2)
+ 		return &cb->que[0];
+ 	else
+diff --git a/mt_wifi/embedded/include/token.h b/mt_wifi/embedded/include/token.h
+index 4b5ccb9..82c4b85 100644
+--- a/mt_wifi/embedded/include/token.h
++++ b/mt_wifi/embedded/include/token.h
+@@ -108,6 +108,10 @@ struct token_tx_pkt_queue {
+ 	UINT32 low_water_mark;
+ 	UINT32 high_water_mark;
+ 	ULONG token_state;
++	/* Per-band pending dequeue request, armed when fp dequeue bailed on the
++	   per-band token limit and cleared again when tokens recover. See
++	   token_tx_deq()/mt_ct_check_hw_resource(). */
++	ULONG tx_deq_pending;
+ 	UINT32 token_full_cnt;
+ 	atomic_t free_token_cnt;
+ 	UINT32 total_enq_cnt;
+@@ -119,6 +123,55 @@ struct token_tx_pkt_queue {
+ 	struct tx_free_notify_deep_stat deep_stat[TX_FREE_NOTIFY_DEEP_STAT_SIZE];
+ };
+ 
++/*
++ * Per-band pending dequeue request bit ops.  tx_deq_pending is a per-queue
++ * bitmap indexed by band_idx: the fp dequeue arm path sets a bit when it bails
++ * on the per-band token limit, and the token-free / arm-recovery path (see
++ * token_tx_wake_deq_if_recovered()) tests + clears + reschedules TX_DEQ_TASK
++ * once the band usage recovers.  The pending bit is intentionally NOT cleared
++ * on the dequeue success path: a concurrent tasklet could be about to observe
++ * it for a recovery crossing, and a clear-without-schedule there would lose
++ * that wakeup.  It is consumed only by token_tx_wake_deq_if_recovered(),
++ * which clears it exactly when it schedules, so leaving it set until recovery
++ * is correct and self-cleaning.
++ *
++ * set/clear_bit are relaxed atomic ops; the plain test used by the wake and
++ * arm sides is intentional -- the closed-window protocol lives in
++ * token_tx_wake_deq_if_recovered() (armed side re-checks right after setting,
++ * free side checks right after decrementing, only one side wins the
++ * clear+schedule), and that function orders both sides with an smp_mb().
++ *
++ * The band_idx width guard is defensive: band_idx is constrained to 0/1 by
++ * the whole call chain today (TOKEN_DEQ_PENDING_NBAND bands, matching the
++ * [2]-sized per-band counter arrays), but an out-of-range index would
++ * otherwise make the kernel bitops write past the ULONG bitmap.
++ */
++#define TOKEN_DEQ_PENDING_NBAND 2
++
++static inline VOID token_tx_set_deq_pending(struct token_tx_pkt_queue *que,
++						UINT32 band_idx)
++{
++	if (band_idx >= TOKEN_DEQ_PENDING_NBAND)
++		return;
++	set_bit(band_idx, &que->tx_deq_pending);
++}
++
++static inline VOID token_tx_clear_deq_pending(struct token_tx_pkt_queue *que,
++						UINT32 band_idx)
++{
++	if (band_idx >= TOKEN_DEQ_PENDING_NBAND)
++		return;
++	clear_bit(band_idx, &que->tx_deq_pending);
++}
++
++static inline BOOLEAN token_tx_test_deq_pending(struct token_tx_pkt_queue *que,
++						UINT32 band_idx)
++{
++	if (band_idx >= TOKEN_DEQ_PENDING_NBAND)
++		return FALSE;
++	return test_bit(band_idx, &que->tx_deq_pending);
++}
++
+ struct token_rx_pkt_entry {
+ 	PNDIS_PACKET pkt_buf;
+ 	RTMP_DMABUF dma_buf;
+@@ -186,6 +239,8 @@ UINT16 token_tx_enq(
+ 
+ BOOLEAN token_tx_get_state(struct token_tx_pkt_queue *que);
+ INT token_tx_set_state(struct token_tx_pkt_queue *que, BOOLEAN state);
++VOID token_tx_wake_deq_if_recovered(struct _RTMP_ADAPTER *pAd,
++			struct token_tx_pkt_queue *que, UINT32 band_idx);
+ VOID token_tx_inc_full_cnt(struct token_tx_pkt_queue *que);
+ struct token_tx_pkt_queue *token_tx_get_queue_by_band(struct _PKT_TOKEN_CB *cb, UINT32 band_idx);
+ struct token_tx_pkt_queue *token_tx_get_queue_by_token_id(PKT_TOKEN_CB *cb, UINT32 token_id);
+diff --git a/mt_wifi/os/linux/tm.c b/mt_wifi/os/linux/tm.c
+index 7da0eb1..4537e69 100644
+--- a/mt_wifi/os/linux/tm.c
++++ b/mt_wifi/os/linux/tm.c
+@@ -101,7 +101,8 @@ static INT tm_tasklet_qm_exit(RTMP_ADAPTER *pAd)
+ 	UINT8 idx;
+ 	RTMP_CHIP_CAP *cap = hc_get_chip_cap(pAd->hdev_ctrl);
+ 
+-	if (cap->qm == FAST_PATH_QM) {
++	if (cap->qm == FAST_PATH_QM || cap->qm == FAST_PATH_FAIR_QM) {
++		/* Both QMs register tx_deque_tasklet[0..1]; kill them all. */
+ 		for (idx = 0; idx < 2; idx++) {
+ 			pAd->tx_dequeue_scheduable[idx] = FALSE;
+ 			RTMP_OS_TASKLET_KILL(&pAd->tx_deque_tasklet[idx]);

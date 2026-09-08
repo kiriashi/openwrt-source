@@ -1,0 +1,28 @@
+diff --git a/mt_wifi/embedded/mgmt/mgmt_vht.c b/mt_wifi/embedded/mgmt/mgmt_vht.c
+index 821136e..ab7cecc 100644
+--- a/mt_wifi/embedded/mgmt/mgmt_vht.c
++++ b/mt_wifi/embedded/mgmt/mgmt_vht.c
+@@ -1887,6 +1887,11 @@ BOOLEAN vht80_channel_group(RTMP_ADAPTER *pAd, UCHAR channel, struct wifi_dev *w
+ 	UCHAR ch_band = wlan_config_get_ch_band(wdev);
+ 	struct vht_ch_layout *vht_ch = get_ch_array(BW_80, ch_band);
+ 
++	/* 80MHz channel grouping is meaningless for the 2.4G band,
++	 * just report "not in any 80MHz group" without error. */
++	if (ch_band != CMD_CH_BAND_5G && ch_band != CMD_CH_BAND_6G)
++		return FALSE;
++
+ 	switch (ch_band) {
+ 	case CMD_CH_BAND_5G:
+ 		/*Select BW80 channel cap by country region*/
+@@ -2015,6 +2020,11 @@ BOOLEAN vht160_channel_group(RTMP_ADAPTER *pAd, UCHAR channel, struct wifi_dev *
+ 	UCHAR ch_band = wlan_config_get_ch_band(wdev);
+ 	struct vht_ch_layout *vht_ch = get_ch_array(BW_160, ch_band);
+ 
++	/* 160MHz channel grouping is meaningless for the 2.4G band,
++	 * just report "not in any 160MHz group" without error. */
++	if (ch_band != CMD_CH_BAND_5G && ch_band != CMD_CH_BAND_6G)
++		return FALSE;
++
+ 	switch (ch_band) {
+ 	case CMD_CH_BAND_5G:
+ 		/*Weather channel not supported*/
